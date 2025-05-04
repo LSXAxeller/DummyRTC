@@ -2,10 +2,6 @@ name: Build Library
 
 on: [push, pull_request]
 
-env:
-  BUILD_TYPE: release
-  STATIC_LINK_ARGS: -static
-
 jobs:
   build:
     runs-on: windows-latest
@@ -42,7 +38,7 @@ jobs:
         with:
           action: build
           directory: build/build_static_${{ matrix.architecture }}
-          setup-options: --cross-file cross_win32.txt -Dc_args="-m32 -msse2" -Dcpp_args="-m32 -msse2" -Dc_link_args="${{ env.STATIC_LINK_ARGS }} -m32" -Dcpp_link_args="${{ env.STATIC_LINK_ARGS }} -m32"
+          setup-options: --cross-file cross_win32.txt -Dc_args="-m32 -msse2" -Dcpp_args="-m32 -msse2" -Dc_link_args="-static -m32" -Dcpp_link_args="-static -m32"
 
       - name: Build Meson (x64)
         if: matrix.architecture == 'x64'
@@ -50,7 +46,7 @@ jobs:
         with:
           action: build
           directory: build/build_static_${{ matrix.architecture }}
-          setup-options: -Dc_args="-m64" -Dcpp_args="-m64" -Dc_link_args="${{ env.STATIC_LINK_ARGS }} -m64" -Dcpp_link_args="${{ env.STATIC_LINK_ARGS }} -m64"
+          setup-options: -Dc_args="-m64" -Dcpp_args="-m64" -Dc_link_args="-static -m64" -Dcpp_link_args="-static -m64"
 
       - name: Verify build directory (Debug)
         shell: bash
