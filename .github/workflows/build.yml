@@ -23,9 +23,17 @@ jobs:
             ninja
 
       - name: Build
-        shell: bash
+        shell: cmd
         run: |
-          C:/msys64/msys2_shell.cmd -mingw64 -c "echo %%CD%% && dir && call build.bat && echo Build script exited with %%ERRORLEVEL%%"
+          rem Ensure MSYS2 tools (meson, ninja) and compilers are in the PATH for cmd
+          set PATH=%MSYS2_INSTALL_DIR%\usr\bin;%MSYS2_INSTALL_DIR%\mingw64\bin;%MSYS2_INSTALL_DIR%\mingw32\bin;%PATH%
+          
+          rem Optional: Verify PATH for debugging
+          rem echo "Current PATH in cmd:"
+          rem echo %PATH%
+
+          rem Now run the build script
+          build.bat
         env:
           ARCHITECTURES: ${{ matrix.arch }}
 
