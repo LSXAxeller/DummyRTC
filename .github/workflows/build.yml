@@ -13,7 +13,6 @@ jobs:
 
       - name: Set up MSYS2
         uses: msys2/setup-msys2@v2
-        id: msys2
         with:
           update: true
           install: >-
@@ -24,40 +23,61 @@ jobs:
             ninja
 
       - name: Build
-        shell: cmd
+        shell: bash
         run: |
-          rem Activate the appropriate MSYS2 environment
-          call "%MSYS2_LOCATION%\msys2_shell.cmd" -mingw64 -no-start -here -c "echo MSYS2 Environment Activated for cmd"
-
-          rem Verify meson is found now
-          where meson
-
-          rem Now run the build script within the activated environment
-          build.bat
+          echo "Running build.bat for architecture: ${{ matrix.arch }}"
+          cmd.exe /C build.bat
         env:
           ARCHITECTURES: ${{ matrix.arch }}
-          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
 
+      - name: List project root directory contents (Debug)
+        shell: bash
+        run: |
+          echo "--- Contents of project root directory ($(pwd)) after build ---"
+          ls -al
+          echo "-------------------------------------------------------------"
 
       - name: Verify build directory
         shell: bash
         run: |
           echo "Build directory contents:"
-          ls -R build || true
+          # Check if the 'build' directory exists before listing recursively
+          if [ -d "build" ]; then
+            ls -R build
+          else
+            echo "Error: 'build' directory not found!"
+            exit 1 # Fail the step explicitly if build is missing
+          fi
+
 
       - name: Collect artifacts
         shell: bash
         run: |
           mkdir -p artifacts
           echo "Copying build outputs..."
-          
-          # For each architecture
-          for arch in ${{ matrix.arch }}; do
-            echo "Processing $arch..."
-            # Find and copy all DLLs, LIBs, and static libs
-            find "build/build_static_${arch}" -name "*.dll" -exec cp {} artifacts/ \;
-          done
-          
+
+          # Use the matrix variable directly as it's a single value per job
+          current_arch=${{ matrix.arch }}
+          echo "Processing $current_arch..."
+
+          # Check if the specific build subdirectory exists
+          if [ ! -d "build/build_static_${current_arch}" ]; then
+            echo "Error: Expected build subdirectory build/build_static_${current_arch} not found!"
+            exit 1 # Fail if the expected subdirectory is missing
+          fi
+
+          # Find and copy all DLLs, LIBs, and static libs (based on your comment, only DLLs currently copied)
+          # find "build/build_static_${current_arch}" \( -name "*.dll" -o -name "*.lib" -o -name "*.a" \) -exec cp {} artifacts/ \;
+          # Sticking to your original command:
+          find "build/build_static_${current_arch}" -name "*.dll" -exec cp {} artifacts/ \;
+
+          # Optional: Check if any files were copied
+          if [ -z "$(ls -A artifacts/ 2>/dev/null)" ]; then
+            echo "Warning: No DLLs were found and copied to artifacts for ${current_arch}."
+            # Decide if this should be a warning or an error.
+            # exit 1 # Uncomment this if no artifacts should be considered a failure
+          fi
+
           echo "Final artifacts:"
           ls -lh artifacts/
 
