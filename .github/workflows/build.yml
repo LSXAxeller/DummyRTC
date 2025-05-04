@@ -31,6 +31,7 @@ jobs:
           action: build
           directory: build/build_static_${{ matrix.architecture }}
           setup-options: --cross-file cross_arm64.txt
+          meson-version: 0.63
 
       - name: Build Meson (x86)
         if: matrix.architecture == 'x86'
@@ -39,6 +40,7 @@ jobs:
           action: build
           directory: build/build_static_${{ matrix.architecture }}
           setup-options: --cross-file cross_win32.txt
+          meson-version: 0.63
 
       - name: Build Meson (x64)
         if: matrix.architecture == 'x64'
@@ -47,6 +49,7 @@ jobs:
           action: build
           directory: build/build_static_${{ matrix.architecture }}
           setup-options: --cross-file cross_win64.txt
+          meson-version: 0.63
 
       - name: Verify build directory (Debug)
         shell: bash
