@@ -19,14 +19,20 @@ jobs:
             mingw-w64-x86_64-toolchain
             mingw-w64-i686-toolchain
             mingw-w64-cross-toolchain
-            mingw-w64-python
+            mingw-w64-x86_64-python
+            mingw-w64-x86_64-python-pip
             meson
             ninja
 
       - name: Build
         shell: msys2 {0}
+        env:
+          MSYSTEM: MINGW64
+          PATH: /mingw64/bin:$PATH
         run: |
           echo "--- Tool versions ---"
+          which python
+          python --version
           meson --version
           ninja --version
           gcc --version
