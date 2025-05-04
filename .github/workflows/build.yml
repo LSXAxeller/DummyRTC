@@ -13,6 +13,7 @@ jobs:
 
       - name: Set up MSYS2
         uses: msys2/setup-msys2@v2
+        id: msys2
         with:
           update: true
           install: >-
@@ -26,26 +27,16 @@ jobs:
         shell: cmd
         run: |
           rem Activate the appropriate MSYS2 environment
-          rem Adjust -mingw64, -mingw32, or -ucrt64 based on your specific needs if necessary
-          rem For general tools like meson/ninja, -msys might be sufficient, but MinGW often needed for compilers
-          call "%MSYS2_INSTALL_DIR%\msys2_shell.cmd" -mingw64 -no-start -here -c "echo MSYS2 Environment Activated for cmd"
+          call "%MSYS2_LOCATION%\msys2_shell.cmd" -mingw64 -no-start -here -c "echo MSYS2 Environment Activated for cmd"
 
-          rem Verify meson is found now (optional debug step)
+          rem Verify meson is found now
           where meson
-          
-          rem Optional: Verify PATH for debugging
-          echo "Current PATH in cmd:"
-          echo %PATH%
 
           rem Now run the build script within the activated environment
           build.bat
         env:
           ARCHITECTURES: ${{ matrix.arch }}
-          # MSYSTEM might be needed by some tools/scripts within the MSYS2 env
-          # Set it based on the arch if your build.bat depends on it.
-          # Example (needs adjustment based on how your build.bat uses ARCHITECTURES):
-          # MSYSTEM: ${{ (matrix.arch == 'x64' && 'MINGW64') || (matrix.arch == 'x86' && 'MINGW32') || 'MINGW64' }} # Adjust ARM64 logic as needed
-
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
 
 
       - name: Verify build directory
