@@ -38,7 +38,7 @@ jobs:
         with:
           action: build
           directory: build/build_static_${{ matrix.architecture }}
-          setup-options: --cross-file cross_win32.txt -Dc_args="-m32 -msse2" -Dcpp_args="-m32 -msse2" -Dc_link_args="-static -m32" -Dcpp_link_args="-static -m32"
+          setup-options: --cross-file cross_win32.txt
 
       - name: Build Meson (x64)
         if: matrix.architecture == 'x64'
@@ -46,7 +46,7 @@ jobs:
         with:
           action: build
           directory: build/build_static_${{ matrix.architecture }}
-          setup-options: -Dc_args="-m64" -Dcpp_args="-m64" -Dc_link_args="-static -m64" -Dcpp_link_args="-static -m64"
+          setup-options: --cross-file cross_win64.txt
 
       - name: Verify build directory (Debug)
         shell: bash
@@ -57,10 +57,12 @@ jobs:
           echo "Checking directory: ${build_dir}"
           if [ -d "${build_dir}" ]; then
             echo "Directory exists. Listing contents:"
-            ls -R "${build_dir}"
+            # Use find for recursive listing, ls -R can behave differently on platforms
+            find "${build_dir}" -print
           else
-            echo "Error: Expected build subdirectory ${build_dir} not found!"
-            exit 1 # Fail the step explicitly if build is missing
+            echo "Error: Expected build subdirectory ${build_dir} not found after build step!"
+            # Using exit 1 here makes the step correctly fail
+            exit 1
           fi
 
       - name: Collect artifacts (Static Lib)
@@ -75,15 +77,22 @@ jobs:
           build_dir="build/build_static_${current_arch}"
 
           # Find and copy static libs (.lib or .a)
-          # Meson/Ninja typically place artifacts in the build directory or a subdirectory like 'src' or 'lib'
-          # Adjust path and glob if your project's meson.build places outputs elsewhere
-          find "${build_dir}" \( -name "*.lib" -o -name "*.a" \) -print -exec cp {} artifacts/ \;
+          # Use find with -exec cp {} artifacts/ \; or xargs for better handling of many files
+          # Add a check to ensure the source directory exists
+          if [ ! -d "${build_dir}" ]; then
+            echo "Error: Build directory '${build_dir}' not found during artifact collection!"
+            exit 1
+          fi
+
+          # Find files, print them, then copy. Use xargs for robustness.
+          find "${build_dir}" \( -name "*.lib" -o -name "*.a" \) -print0 | xargs -0 -I {} cp "{}" artifacts/
 
           # Check if any files were copied
           if [ -z "$(ls -A artifacts/ 2>/dev/null)" ]; then
             echo "Warning: No static library files (.lib or .a) were found and copied to artifacts for ${current_arch}."
-            # Decide if this should be a warning or an error.
-            # exit 1 # Uncomment this if no artifacts should be considered a failure
+            # The upload step is configured to fail if no files are found,
+            # so we don't necessarily need exit 1 here unless you want this step
+            # specifically to fail before upload.
           else
             echo "Successfully collected artifacts for ${current_arch}:"
             ls -lh artifacts/
@@ -92,6 +101,6 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: webrtc-audio-processing-static-${{ matrix.architecture }} # Changed name to reflect static build
+          name: webrtc-audio-processing-static-${{ matrix.architecture }}
           path: artifacts/
           if-no-files-found: error # Ensure step fails if no artifacts were collected
