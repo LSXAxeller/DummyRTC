@@ -1,0 +1,45 @@
+name: Build Library
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x64, x86, arm64, arm32]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-i686-toolchain
+            mingw-w64-aarch64-toolchain
+            mingw-w64-armv7-toolchain
+            meson
+            ninja
+
+      - name: Build
+        shell: cmd
+        run: |
+          build.bat
+        env:
+          ARCHITECTURES: ${{ matrix.arch }}
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          # Copy all built libraries with architecture suffixes
+          cp build/build_static_${{ matrix.arch }}/*_${{ matrix.arch }}.* artifacts/ || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: webrtc-audio-processing-binaries
+          path: artifacts/
+          if-no-files-found: error

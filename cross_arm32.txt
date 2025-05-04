@@ -1,0 +1,12 @@
+﻿[binaries]
+c = 'armv7-w64-mingw32-gcc'
+cpp = 'armv7-w64-mingw32-g++'
+ar = 'armv7-w64-mingw32-gcc-ar'
+strip = 'armv7-w64-mingw32-strip'
+ranlib = 'armv7-w64-mingw32-gcc-ranlib'
+
+[host_machine]
+system = 'windows'
+cpu_family = 'arm'
+cpu = 'armv7'
+endian = 'little'
