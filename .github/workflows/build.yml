@@ -19,6 +19,7 @@ jobs:
             mingw-w64-x86_64-toolchain
             mingw-w64-i686-toolchain
             mingw-w64-cross-toolchain
+            mingw-w64-python
             meson
             ninja
 
