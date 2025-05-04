@@ -21,6 +21,8 @@ jobs:
             mingw-w64-i686-toolchain
             mingw-w64-ucrt-x86_64-toolchain
             mingw-w64-cross-toolchain
+            meson
+            ninja
 
       - name: Build Meson (arm64)
         if: matrix.architecture == 'arm64'
