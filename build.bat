@@ -5,7 +5,7 @@ REM --- Configuration ---
 set SOURCE_DIR=.
 set BUILD_TYPE=release
 set STATIC_LINK_ARGS=-static
-set ARCHITECTURES=x64 x86 arm64 arm32
+set ARCHITECTURES=x64 x86 arm64
 set BUILD_DIR_PREFIX=build/build_static_
 set OUTPUT_LIB_NAME=webrtc_audio_processing
 REM --- End Configuration ---
@@ -39,7 +39,12 @@ for %%a in (%ARCHITECTURES%) do (
     REM Configure build
     echo Configuring %%a build...
 
-    if "%%a"=="x86" (
+    if "%%a"=="arm64" (
+
+        meson setup "!BUILD_DIR!" "%SOURCE_DIR%" ^
+            --buildtype=%BUILD_TYPE% ^
+            --cross-file "%SOURCE_DIR%\cross_arm64.txt"
+    ) else if "%%a"=="x86" (
         meson setup "!BUILD_DIR!" "%SOURCE_DIR%" ^
             --buildtype=%BUILD_TYPE% ^
             --cross-file "%SOURCE_DIR%\cross_win32.txt" ^
@@ -47,14 +52,6 @@ for %%a in (%ARCHITECTURES%) do (
             -Dcpp_args="-m32 -msse2" ^
             -Dc_link_args="%STATIC_LINK_ARGS% -m32" ^
             -Dcpp_link_args="%STATIC_LINK_ARGS% -m32"
-    ) else if "%%a"=="arm64" (
-        meson setup "!BUILD_DIR!" "%SOURCE_DIR%" ^
-            --buildtype=%BUILD_TYPE% ^
-            --cross-file "%SOURCE_DIR%\cross_arm64.txt"
-    ) else if "%%a"=="arm32" (
-        meson setup "!BUILD_DIR!" "%SOURCE_DIR%" ^
-            --buildtype=%BUILD_TYPE% ^
-            --cross-file "%SOURCE_DIR%\cross_arm32.txt"
     ) else (
         meson setup "!BUILD_DIR!" "%SOURCE_DIR%" ^
             --buildtype=%BUILD_TYPE% ^
