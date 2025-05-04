@@ -19,37 +19,32 @@ jobs:
           install: >-
             mingw-w64-x86_64-toolchain
             mingw-w64-i686-toolchain
+            mingw-w64-ucrt-x86_64-toolchain
             mingw-w64-cross-toolchain
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
 
       - name: Build Meson (arm64)
         if: matrix.architecture == 'arm64'
-        uses: BSFishy/meson-build@v1.0.3
-        with:
-          action: build
-          directory: build/build_static_${{ matrix.architecture }}
-          setup-options: --cross-file cross_arm64.txt
-          meson-version: 0.63
+        shell: msys2 {0}
+        run: |
+          pacman -S --noconfirm --needed mingw-w64-cross-toolchain
+          meson setup build/build_static_arm64 --cross-file cross_arm64.txt
+          meson compile -C build/build_static_arm64
 
       - name: Build Meson (x86)
         if: matrix.architecture == 'x86'
-        uses: BSFishy/meson-build@v1.0.3
-        with:
-          action: build
-          directory: build/build_static_${{ matrix.architecture }}
-          setup-options: --cross-file cross_win32.txt
-          meson-version: 0.63
+        shell: msys2 {0}
+        run: |
+          pacman -S --noconfirm --needed mingw-w64-i686-toolchain
+          meson setup build/build_static_x86 --cross-file cross_win32.txt
+          meson compile -C build/build_static_x86
 
       - name: Build Meson (x64)
         if: matrix.architecture == 'x64'
-        uses: BSFishy/meson-build@v1.0.3
-        with:
-          action: build
-          directory: build/build_static_${{ matrix.architecture }}
-          setup-options: --cross-file cross_win64.txt
-          meson-version: 0.63
+        shell: msys2 {0}
+        run: |
+          pacman -S --noconfirm --needed mingw-w64-x86_64-toolchain
+          meson setup build/build_static_x64 --cross-file cross_win64.txt
+          meson compile -C build/build_static_x64
 
       - name: Verify build directory (Debug)
         shell: bash
