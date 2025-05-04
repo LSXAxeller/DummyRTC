@@ -29,16 +29,33 @@ jobs:
         env:
           ARCHITECTURES: ${{ matrix.arch }}
 
+      - name: Verify build directory
+        shell: bash
+        run: |
+          echo "Build directory contents:"
+          ls -R build || true
+
       - name: Collect artifacts
         shell: bash
         run: |
           mkdir -p artifacts
-          # Copy all built libraries recursively from build directory
-          find "build/build_static_${{ matrix.arch }}" -name "*.dll" -exec cp {} artifacts/ \;
+          echo "Copying build outputs..."
+          
+          # For each architecture
+          for arch in ${{ matrix.arch }}; do
+            echo "Processing $arch..."
+            # Find and copy all DLLs, LIBs, and static libs
+            find "build/build_static_${arch}" -name "*.dll" -exec cp {} artifacts/ \;
+            find "build/build_static_${arch}" -name "*.lib" -exec cp {} artifacts/ \;
+            find "build/build_static_${arch}" -name "*.a" -exec cp {} artifacts/ \;
+          done
+          
+          echo "Final artifacts:"
+          ls -lh artifacts/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: webrtc-audio-processing-binaries
+          name: webrtc-audio-processing-${{ matrix.arch }}
           path: artifacts/
           if-no-files-found: error
