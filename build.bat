@@ -5,8 +5,7 @@ REM --- Configuration ---
 set SOURCE_DIR=.
 set BUILD_TYPE=release
 set STATIC_LINK_ARGS=-static
-REM OLD ARCHITECTURES=arm64 x64 x86
-set ARCHITECTURES=%ARCHITECTURES%
+set ARCHITECTURES=arm64 x64 x86
 set BUILD_DIR_PREFIX=build/build_static_
 set OUTPUT_LIB_NAME=webrtc_audio_processing
 REM --- End Configuration ---
@@ -84,17 +83,6 @@ for %%a in (%ARCHITECTURES%) do (
         echo ERROR: Build failed for %%a
         set EXIT_CODE=1
         goto :end
-    )
-
-    REM Rename output files for consistency
-    if exist "!BUILD_DIR!\lib!OUTPUT_LIB_NAME!.dll" (
-        copy "!BUILD_DIR!\lib!OUTPUT_LIB_NAME!.dll" "!BUILD_DIR!\!OUTPUT_LIB_NAME!_%%a.dll"
-    )
-    if exist "!BUILD_DIR!\lib!OUTPUT_LIB_NAME!.a" (
-        copy "!BUILD_DIR!\lib!OUTPUT_LIB_NAME!.a" "!BUILD_DIR!\!OUTPUT_LIB_NAME!_%%a.a"
-    )
-    if exist "!BUILD_DIR!\lib!OUTPUT_LIB_NAME!.lib" (
-        copy "!BUILD_DIR!\lib!OUTPUT_LIB_NAME!.lib" "!BUILD_DIR!\!OUTPUT_LIB_NAME!_%%a.lib"
     )
 
     echo Successfully built %%a version in !BUILD_DIR!

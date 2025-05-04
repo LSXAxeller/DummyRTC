@@ -2,12 +2,17 @@ name: Build Library
 
 on: [push, pull_request]
 
+env:
+  BUILD_TYPE: release
+  STATIC_LINK_ARGS: -static
+
 jobs:
   build:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [arm64, x64, x86]
+        architecture: [arm64, x64, x86]
+
     steps:
       - uses: actions/checkout@v4
 
@@ -19,85 +24,89 @@ jobs:
             mingw-w64-x86_64-toolchain
             mingw-w64-i686-toolchain
             mingw-w64-cross-toolchain
-            mingw-w64-x86_64-python
-            mingw-w64-x86_64-python-pip
-            meson
-            ninja
 
-      - name: Build
-        shell: msys2 {0}
-        env:
-          MSYSTEM: MINGW64
-          PATH: /mingw64/bin:$PATH
-        run: |
-          echo "--- Tool versions ---"
-          which python
-          python --version
-          meson --version
-          ninja --version
-          gcc --version
-          echo "--- Environment ---"
-          env | sort
-          echo "--- Current directory ---"
-          pwd
-          ls -la
-          echo "Running build.bat for architecture: $ARCHITECTURES"
-          cmd.exe /C build.bat
+      - name: Set up Python
+        uses: actions/setup-python@v5
 
-      - name: List project root directory contents (Debug)
-        shell: bash
-        run: |
-          echo "--- Contents of project root directory ($(pwd)) after build ---"
-          ls -al
-          echo "-------------------------------------------------------------"
+      - name: Configure Meson (arm64)
+        if: matrix.architecture == 'arm64'
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: setup
+          directory: build/build_static_${{ matrix.architecture }}
+          setup-options: --cross-file cross_arm64.txt
 
-      - name: Verify build directory
+      - name: Configure Meson (x86)
+        if: matrix.architecture == 'x86'
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: setup
+          directory: build/build_static_${{ matrix.architecture }}
+          setup-options: --cross-file cross_win32.txt -Dc_args="-m32 -msse2" -Dcpp_args="-m32 -msse2" -Dc_link_args="${{ env.STATIC_LINK_ARGS }} -m32" -Dcpp_link_args="${{ env.STATIC_LINK_ARGS }} -m32"
+
+      - name: Configure Meson (x64)
+        if: matrix.architecture == 'x64'
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: setup
+          directory: build/build_static_${{ matrix.architecture }}
+          setup-options: -Dc_args="-m64" -Dcpp_args="-m64" -Dc_link_args="${{ env.STATIC_LINK_ARGS }} -m64" -Dcpp_link_args="${{ env.STATIC_LINK_ARGS }} -m64"
+
+      # --- Meson Build Step ---
+      # This step runs for every architecture after its configuration step
+      - name: Build with Ninja (${{ matrix.architecture }})
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: build
+          directory: build/build_static_${{ matrix.architecture }} # Use the same build directory
+
+      # The original build.bat step and the debug steps after it are replaced by the above Meson steps.
+      # The original Collect and Upload steps can remain, but need adjustment for static libraries.
+
+      - name: Verify build directory (Debug)
         shell: bash
         run: |
           echo "Build directory contents:"
           # Check if the 'build' directory exists before listing recursively
-          if [ -d "build" ]; then
-            ls -R build
+          build_dir="build/build_static_${{ matrix.architecture }}"
+          echo "Checking directory: ${build_dir}"
+          if [ -d "${build_dir}" ]; then
+            echo "Directory exists. Listing contents:"
+            ls -R "${build_dir}"
           else
-            echo "Error: 'build' directory not found!"
+            echo "Error: Expected build subdirectory ${build_dir} not found!"
             exit 1 # Fail the step explicitly if build is missing
           fi
 
-
-      - name: Collect artifacts
+      - name: Collect artifacts (Static Lib)
         shell: bash
         run: |
           mkdir -p artifacts
           echo "Copying build outputs..."
 
-          # Use the matrix variable directly as it's a single value per job
-          current_arch=${{ matrix.arch }}
+          current_arch=${{ matrix.architecture }}
           echo "Processing $current_arch..."
 
-          # Check if the specific build subdirectory exists
-          if [ ! -d "build/build_static_${current_arch}" ]; then
-            echo "Error: Expected build subdirectory build/build_static_${current_arch} not found!"
-            exit 1 # Fail if the expected subdirectory is missing
-          fi
+          build_dir="build/build_static_${current_arch}"
 
-          # Find and copy all DLLs, LIBs, and static libs (based on your comment, only DLLs currently copied)
-          # find "build/build_static_${current_arch}" \( -name "*.dll" -o -name "*.lib" -o -name "*.a" \) -exec cp {} artifacts/ \;
-          # Sticking to your original command:
-          find "build/build_static_${current_arch}" -name "*.dll" -exec cp {} artifacts/ \;
+          # Find and copy static libs (.lib or .a)
+          # Meson/Ninja typically place artifacts in the build directory or a subdirectory like 'src' or 'lib'
+          # Adjust path and glob if your project's meson.build places outputs elsewhere
+          find "${build_dir}" \( -name "*.lib" -o -name "*.a" \) -print -exec cp {} artifacts/ \;
 
-          # Optional: Check if any files were copied
+          # Check if any files were copied
           if [ -z "$(ls -A artifacts/ 2>/dev/null)" ]; then
-            echo "Warning: No DLLs were found and copied to artifacts for ${current_arch}."
+            echo "Warning: No static library files (.lib or .a) were found and copied to artifacts for ${current_arch}."
             # Decide if this should be a warning or an error.
             # exit 1 # Uncomment this if no artifacts should be considered a failure
+          else
+            echo "Successfully collected artifacts for ${current_arch}:"
+            ls -lh artifacts/
           fi
-
-          echo "Final artifacts:"
-          ls -lh artifacts/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: webrtc-audio-processing-${{ matrix.arch }}
+          name: webrtc-audio-processing-static-${{ matrix.architecture }} # Changed name to reflect static build
           path: artifacts/
-          if-no-files-found: error
+          if-no-files-found: error # Ensure step fails if no artifacts were collected
