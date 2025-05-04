@@ -1,4 +1,4 @@
-﻿[binaries]
+[binaries]
 c = 'aarch64-w64-mingw32-gcc'
 cpp = 'aarch64-w64-mingw32-g++'
 ar = 'aarch64-w64-mingw32-gcc-ar'
