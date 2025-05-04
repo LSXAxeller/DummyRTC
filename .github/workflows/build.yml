@@ -23,12 +23,19 @@ jobs:
             ninja
 
       - name: Build
-        shell: bash
+        shell: msys2 {0}
         run: |
-          echo "Running build.bat for architecture: ${{ matrix.arch }}"
+          echo "--- Tool versions ---"
+          meson --version
+          ninja --version
+          gcc --version
+          echo "--- Environment ---"
+          env | sort
+          echo "--- Current directory ---"
+          pwd
+          ls -la
+          echo "Running build.bat for architecture: $ARCHITECTURES"
           cmd.exe /C build.bat
-        env:
-          ARCHITECTURES: ${{ matrix.arch }}
 
       - name: List project root directory contents (Debug)
         shell: bash

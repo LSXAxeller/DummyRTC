@@ -5,7 +5,8 @@ REM --- Configuration ---
 set SOURCE_DIR=.
 set BUILD_TYPE=release
 set STATIC_LINK_ARGS=-static
-set ARCHITECTURES=arm64 x64 x86
+REM OLD ARCHITECTURES=arm64 x64 x86
+set ARCHITECTURES=%ARCHITECTURES%
 set BUILD_DIR_PREFIX=build/build_static_
 set OUTPUT_LIB_NAME=webrtc_audio_processing
 REM --- End Configuration ---
@@ -24,6 +25,13 @@ echo --- WebRTC Audio Processing Build Script ---
 echo Building for architectures: %ARCHITECTURES%
 echo.
 
+REM Verify we have at least one architecture to build
+if "%ARCHITECTURES%"=="" (
+    echo ERROR: No architectures specified in ARCHITECTURES
+    exit /b 1
+)
+
+set EXIT_CODE=0
 for %%a in (%ARCHITECTURES%) do (
     echo.
     echo === Building for %%a ===
@@ -38,9 +46,10 @@ for %%a in (%ARCHITECTURES%) do (
 
     REM Configure build
     echo Configuring %%a build...
+    echo Using meson: %MESON_PATH%
+    where meson
 
     if "%%a"=="arm64" (
-
         meson setup "!BUILD_DIR!" "%SOURCE_DIR%" ^
             --buildtype=%BUILD_TYPE% ^
             --cross-file "%SOURCE_DIR%\cross_arm64.txt"
@@ -63,7 +72,8 @@ for %%a in (%ARCHITECTURES%) do (
 
     if errorlevel 1 (
         echo ERROR: Configuration failed for %%a
-        exit /b 1
+        set EXIT_CODE=1
+        goto :end
     )
 
     REM Build
@@ -72,7 +82,8 @@ for %%a in (%ARCHITECTURES%) do (
 
     if errorlevel 1 (
         echo ERROR: Build failed for %%a
-        exit /b 1
+        set EXIT_CODE=1
+        goto :end
     )
 
     REM Rename output files for consistency
@@ -85,11 +96,9 @@ for %%a in (%ARCHITECTURES%) do (
     if exist "!BUILD_DIR!\lib!OUTPUT_LIB_NAME!.lib" (
         copy "!BUILD_DIR!\lib!OUTPUT_LIB_NAME!.lib" "!BUILD_DIR!\!OUTPUT_LIB_NAME!_%%a.lib"
     )
-    
+
     echo Successfully built %%a version in !BUILD_DIR!
 )
 
-echo.
-echo All builds completed successfully!
-endlocal
-exit /b 0
+:end
+endlocal & exit /b %EXIT_CODE%
