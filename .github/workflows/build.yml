@@ -25,9 +25,11 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          cmd.exe /C build.bat
+          C:/msys64/msys2_shell.cmd -mingw64 -c "echo %%CD%% && dir && call build.bat && echo Build script exited with %%ERRORLEVEL%%"
         env:
           ARCHITECTURES: ${{ matrix.arch }}
+
+
 
       - name: Verify build directory
         shell: bash
@@ -46,8 +48,6 @@ jobs:
             echo "Processing $arch..."
             # Find and copy all DLLs, LIBs, and static libs
             find "build/build_static_${arch}" -name "*.dll" -exec cp {} artifacts/ \;
-            find "build/build_static_${arch}" -name "*.lib" -exec cp {} artifacts/ \;
-            find "build/build_static_${arch}" -name "*.a" -exec cp {} artifacts/ \;
           done
           
           echo "Final artifacts:"
