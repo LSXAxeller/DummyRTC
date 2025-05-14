@@ -1,0 +1,20 @@
+﻿[constants]
+ndk_root = '$NDK_ROOT'
+api_level = '$API_LEVEL'
+toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi'
+
+[host_machine]
+system = 'android'
+cpu_family = 'arm'
+cpu = 'armv7'
+endian = 'little'
+
+[properties]
+c_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
+cpp_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
+
+[binaries]
+c = toolchain + api_level + '-clang'
+cpp = toolchain + api_level + '-clang++'
+ar = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar'
+strip = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip'

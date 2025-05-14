@@ -17,14 +17,14 @@ jobs:
             arch: x64
             toolchain: mingw
             cross_file: "windows-x64.crossfile"
-            
+
           - os: windows-latest
             rid: win-x86
             platform: Windows
             arch: x86
             toolchain: mingw
             cross_file: "windows-x86.crossfile"
-            
+
           # Linux builds
           - os: ubuntu-latest
             rid: linux-x64
@@ -32,14 +32,14 @@ jobs:
             arch: x86_64
             toolchain: gcc
             cross_file: ""
-            
+
           - os: ubuntu-latest
             rid: linux-arm
             platform: Linux
             arch: armv7l
             toolchain: gcc
             cross_file: "linux-arm.crossfile"
-            
+
           - os: ubuntu-latest
             rid: linux-arm64
             platform: Linux
@@ -54,7 +54,7 @@ jobs:
             arch: x86_64
             toolchain: clang
             cross_file: ""
-            
+
           - os: macos-latest
             rid: osx-arm64
             platform: macOS
@@ -77,14 +77,14 @@ jobs:
             arch: armeabi-v7a
             toolchain: clang
             cross_file: "android-arm.crossfile"
-            
+
           - os: ubuntu-latest
             rid: android-arm64
             platform: Android
             arch: arm64-v8a
             toolchain: clang
             cross_file: "android-arm64.crossfile"
-            
+
           - os: ubuntu-latest
             rid: android-x64
             platform: Android
@@ -135,197 +135,11 @@ jobs:
 
       # Android NDK setup
       - name: Setup Android NDK
+        if: matrix.platform == 'Android'
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r26d
- 
-      # Generate cross files for platforms that need them
-      # Generate cross files for platforms that need them
-      - name: Generate cross files
-        shell: bash
-        run: |
-          mkdir -p crossfiles
-          
-          # Windows x86
-          if [ "${{ matrix.rid }}" == "win-x86" ]; then
-            cat > crossfiles/windows-x86.crossfile <<'EOF'
-[binaries]
-c = 'i686-w64-mingw32-gcc'
-cpp = 'i686-w64-mingw32-g++'
-ar = 'i686-w64-mingw32-gcc-ar'
-strip = 'i686-w64-mingw32-gcc-strip'
-ranlib = 'i686-w64-mingw32-gcc-ranlib'
-windres = 'i686-w64-mingw32-windres'
 
-[host_machine]
-system = 'windows'
-cpu_family = 'x86'
-cpu = 'i686'
-endian = 'little'
-
-[properties]
-c_args = ['-m32', '-msse2']
-cpp_args = ['-m32', '-msse2']
-c_link_args = ['-static', '-m32']
-cpp_link_args = ['-static', '-m32']
-EOF
-          fi
-          
-          # Windows x64
-          if [ "${{ matrix.rid }}" == "win-x64" ]; then
-            cat > crossfiles/windows-x64.crossfile <<'EOF'
-[binaries]
-c = 'x86_64-w64-mingw32-gcc'
-cpp = 'x86_64-w64-mingw32-g++'
-ar = 'x86_64-w64-mingw32-gcc-ar'
-strip = 'x86_64-w64-mingw32-gcc-strip'
-ranlib = 'x86_64-w64-mingw32-gcc-ranlib'
-windres = 'x86_64-w64-mingw32-windres'
-
-[host_machine]
-system = 'windows'
-cpu_family = 'x86_64'
-cpu = 'x86_64'
-endian = 'little'
-
-[properties]
-c_args = ['-m64']
-cpp_args = ['-m64']
-c_link_args = ['-static', '-m64']
-cpp_link_args = ['-static', '-m64']
-EOF
-          fi
-          
-          # Linux ARM
-          if [ "${{ matrix.rid }}" == "linux-arm" ]; then
-            cat > crossfiles/linux-arm.crossfile <<'EOF'
-[binaries]
-c = 'arm-linux-gnueabihf-gcc'
-cpp = 'arm-linux-gnueabihf-g++'
-ar = 'arm-linux-gnueabihf-ar'
-strip = 'arm-linux-gnueabihf-strip'
-
-[host_machine]
-system = 'linux'
-cpu_family = 'arm'
-cpu = 'armv7l'
-endian = 'little'
-EOF
-          fi
-          
-          # Linux ARM64
-          if [ "${{ matrix.rid }}" == "linux-arm64" ]; then
-            cat > crossfiles/linux-arm64.crossfile <<'EOF'
-[binaries]
-c = 'aarch64-linux-gnu-gcc'
-cpp = 'aarch64-linux-gnu-g++'
-ar = 'aarch64-linux-gnu-ar'
-strip = 'aarch64-linux-gnu-strip'
-
-[host_machine]
-system = 'linux'
-cpu_family = 'aarch64'
-cpu = 'aarch64'
-endian = 'little'
-EOF
-          fi
-          
-          # iOS
-          if [ "${{ matrix.platform }}" == "iOS" ]; then
-            cat > crossfiles/ios.crossfile <<'EOF'
-[host_machine]
-system = 'darwin'
-cpu_family = 'aarch64'
-cpu = 'aarch64'
-endian = 'little'
-
-[properties]
-c_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
-cpp_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
-objc_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
-objcpp_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
-c_link_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
-cpp_link_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
-
-[binaries]
-c = '$(xcrun --find --sdk iphoneos clang)'
-cpp = '$(xcrun --find --sdk iphoneos clang++)'
-objc = '$(xcrun --find --sdk iphoneos clang)'
-objcpp = '$(xcrun --find --sdk iphoneos clang++)'
-ar = '$(xcrun --find --sdk iphoneos ar)'
-strip = '$(xcrun --find --sdk iphoneos strip)'
-EOF
-          fi
-          
-          # Android
-          if [ "${{ matrix.platform }}" == "Android" ]; then
-            NDK_ROOT="$ANDROID_NDK_ROOT"
-            API_LEVEL=21
-            
-            if [ "${{ matrix.arch }}" == "armeabi-v7a" ]; then
-              cat > crossfiles/android-arm.crossfile <<'EOF'
-[constants]
-ndk_root = '$NDK_ROOT'
-api_level = '$API_LEVEL'
-toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi'
-
-[host_machine]
-system = 'android'
-cpu_family = 'arm'
-cpu = 'armv7'
-endian = 'little'
-
-[properties]
-c_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
-cpp_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
-
-[binaries]
-c = toolchain + api_level + '-clang'
-cpp = toolchain + api_level + '-clang++'
-ar = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar'
-strip = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip'
-EOF
-            elif [ "${{ matrix.arch }}" == "arm64-v8a" ]; then
-              cat > crossfiles/android-arm64.crossfile <<'EOF'
-[constants]
-ndk_root = '$NDK_ROOT'
-api_level = '$API_LEVEL'
-toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android'
-
-[host_machine]
-system = 'android'
-cpu_family = 'aarch64'
-cpu = 'aarch64'
-endian = 'little'
-
-[binaries]
-c = toolchain + api_level + '-clang'
-cpp = toolchain + api_level + '-clang++'
-ar = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar'
-strip = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-strip'
-EOF
-            elif [ "${{ matrix.arch }}" == "x86_64" ]; then
-              cat > crossfiles/android-x64.crossfile <<'EOF'
-[constants]
-ndk_root = '$NDK_ROOT'
-api_level = '$API_LEVEL'
-toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android'
-
-[host_machine]
-system = 'android'
-cpu_family = 'x86_64'
-cpu = 'x86_64'
-endian = 'little'
-
-[binaries]
-c = toolchain + api_level + '-clang'
-cpp = toolchain + api_level + '-clang++'
-ar = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar'
-strip = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-strip'
-EOF
-            fi
-          fi
-          
       # Configure Meson
       - name: Configure Meson
         shell: bash

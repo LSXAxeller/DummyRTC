@@ -1,0 +1,16 @@
+﻿[constants]
+ndk_root = '$NDK_ROOT'
+api_level = '$API_LEVEL'
+toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android'
+
+[host_machine]
+system = 'android'
+cpu_family = 'aarch64'
+cpu = 'aarch64'
+endian = 'little'
+
+[binaries]
+c = toolchain + api_level + '-clang'
+cpp = toolchain + api_level + '-clang++'
+ar = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar'
+strip = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-strip'

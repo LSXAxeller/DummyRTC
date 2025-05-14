@@ -1,0 +1,21 @@
+﻿[host_machine]
+system = 'darwin'
+cpu_family = 'aarch64'
+cpu = 'aarch64'
+endian = 'little'
+
+[properties]
+c_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+cpp_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+objc_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+objcpp_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+c_link_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+cpp_link_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+
+[binaries]
+c = '$(xcrun --find --sdk iphoneos clang)'
+cpp = '$(xcrun --find --sdk iphoneos clang++)'
+objc = '$(xcrun --find --sdk iphoneos clang)'
+objcpp = '$(xcrun --find --sdk iphoneos clang++)'
+ar = '$(xcrun --find --sdk iphoneos ar)'
+strip = '$(xcrun --find --sdk iphoneos strip)'
