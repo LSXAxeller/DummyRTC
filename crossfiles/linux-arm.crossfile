@@ -1,4 +1,4 @@
-﻿[binaries]
+[binaries]
 c = 'arm-linux-gnueabihf-gcc'
 cpp = 'arm-linux-gnueabihf-g++'
 ar = 'arm-linux-gnueabihf-ar'

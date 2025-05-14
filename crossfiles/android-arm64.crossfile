@@ -1,4 +1,4 @@
-﻿[constants]
+[constants]
 ndk_root = '$NDK_ROOT'
 api_level = '$API_LEVEL'
 toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android'
