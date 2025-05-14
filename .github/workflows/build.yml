@@ -176,13 +176,13 @@ jobs:
           if [ "${{ matrix.platform }}" == "Windows" ]; then
             cp $BUILD_DIR/*.dll $OUTPUT_DIR/
           elif [ "${{ matrix.platform }}" == "iOS" ]; then
-            # For iOS, we might need to package a framework
+            # For iOS, we need to package a framework
             mkdir -p $OUTPUT_DIR/webrtc_audio_processing.framework
-            cp $BUILD_DIR/libwebrtc_audio_processing.dylib $OUTPUT_DIR/webrtc_audio_processing.framework/webrtc_audio_processing
+            cp $BUILD_DIR/*.dylib $OUTPUT_DIR/webrtc_audio_processing.framework/webrtc_audio_processing
           elif [ "${{ matrix.platform }}" == "macOS" ]; then
-            cp $BUILD_DIR/libwebrtc_audio_processing.dylib $OUTPUT_DIR/
+            cp $BUILD_DIR/*.dylib $OUTPUT_DIR/
           else
-            cp $BUILD_DIR/libwebrtc_audio_processing.so $OUTPUT_DIR/
+            cp $BUILD_DIR/*.so $OUTPUT_DIR/
           fi
 
       - name: Upload Artifact
