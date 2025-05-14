@@ -1,6 +1,6 @@
 [constants]
-ndk_root = '$NDK_ROOT'
-api_level = '$API_LEVEL'
+ndk_root = '$ANDROID_NDK_ROOT'
+api_level = '21'
 toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android'
 
 [host_machine]

@@ -25,51 +25,6 @@ jobs:
             toolchain: mingw
             cross_file: "windows-x86.crossfile"
 
-          # Linux builds
-          - os: ubuntu-latest
-            rid: linux-x64
-            platform: Linux
-            arch: x86_64
-            toolchain: gcc
-            cross_file: ""
-
-          - os: ubuntu-latest
-            rid: linux-arm
-            platform: Linux
-            arch: armv7l
-            toolchain: gcc
-            cross_file: "linux-arm.crossfile"
-
-          - os: ubuntu-latest
-            rid: linux-arm64
-            platform: Linux
-            arch: aarch64
-            toolchain: gcc
-            cross_file: "linux-arm64.crossfile"
-
-          # macOS builds
-          - os: macos-latest
-            rid: osx-x64
-            platform: macOS
-            arch: x86_64
-            toolchain: clang
-            cross_file: ""
-
-          - os: macos-latest
-            rid: osx-arm64
-            platform: macOS
-            arch: arm64
-            toolchain: clang
-            cross_file: ""
-
-          # iOS builds
-          - os: macos-latest
-            rid: ios-arm64
-            platform: iOS
-            arch: arm64
-            toolchain: clang
-            cross_file: "ios.crossfile"
-
           # Android builds
           - os: ubuntu-latest
             rid: android-arm
@@ -112,11 +67,30 @@ jobs:
       - name: Install MinGW (Windows)
         if: matrix.platform == 'Windows'
         run: |
-          choco install winlibs --params="/InstallDir:C:/mingw" -y
-          choco install mingw --params="/InstallDir:C:/mingw" -y
-          echo "C:/mingw/bin" >> $GITHUB_PATH
-          echo "CC=i686-w64-mingw32-gcc" >> $GITHUB_ENV
-          echo "CXX=i686-w64-mingw32-g++" >> $GITHUB_ENV
+          # Download and extract both x86 and x64 versions
+          $Release = "10.2.0-11.0.0-8.0.0-r8"
+          $UrlBase = "https://github.com/brechtsanders/winlibs_mingw/releases/download"
+          $32 = "i686-posix-dwarf"
+          $64 = "x86_64-posix-seh"
+          $vers = $Release.Split("-")
+
+          # Download x86 version
+          $x86Url = "$UrlBase/$Release/winlibs-$32-gcc-$($vers[0])-llvm-$($vers[1])-mingw-w64-$($vers[2])-$($vers[3]).TrimStart('r')).zip"
+          $x86Path = "$env:RUNNER_TEMP/mingw32.zip"
+          Invoke-WebRequest -Uri $x86Url -OutFile $x86Path
+
+          # Download x64 version
+          $x64Url = "$UrlBase/$Release/winlibs-$64-gcc-$($vers[0])-llvm-$($vers[1])-mingw-w64-$($vers[2])-$($vers[3]).zip"
+          $x64Path = "$env:RUNNER_TEMP/mingw64.zip"
+          Invoke-WebRequest -Uri $x64Url -OutFile $x64Path
+
+          # Extract both
+          Expand-Archive -Path $x86Path -DestinationPath "C:/mingw32"
+          Expand-Archive -Path $x64Path -DestinationPath "C:/mingw64"
+
+          # Add both to PATH
+          echo "C:/mingw32/mingw32/bin" >> $GITHUB_PATH
+          echo "C:/mingw64/mingw64/bin" >> $GITHUB_PATH
 
       # Linux dependencies
       - name: Install Linux dependencies
