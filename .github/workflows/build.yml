@@ -25,6 +25,7 @@ jobs:
             toolchain: mingw
             cross_file: "windows-x86.crossfile"
 
+
     name: Build for ${{ matrix.platform }} - ${{ matrix.arch }}
 
     steps:
@@ -42,6 +43,7 @@ jobs:
         run: pip install meson ninja
 
       # Install MinGW for Windows builds
+      # Install MinGW for Windows builds
       - name: Install MinGW (Windows)
         if: matrix.platform == 'Windows'
         shell: powershell
@@ -54,16 +56,22 @@ jobs:
           $vers = $Release.Split("-")
 
           # Download x86 version
-          $x86Url = "$UrlBase/$Release/winlibs-$32-gcc-$($vers[0])-llvm-$($vers[1])-mingw-w64-$($vers[2])-$($vers[3]).TrimStart('r')).zip"
+          # Corrected line: Removed extra closing parenthesis and .TrimStart('r')
+          $x86Url = "$UrlBase/$Release/winlibs-$32-gcc-$($vers[0])-llvm-$($vers[1])-mingw-w64-$($vers[2])-$($vers[3]).zip"
           $x86Path = "$env:RUNNER_TEMP/mingw32.zip"
           Invoke-WebRequest -Uri $x86Url -OutFile $x86Path
 
           # Download x64 version
+          # Corrected line: Removed extra closing parenthesis and .TrimStart('r')
           $x64Url = "$UrlBase/$Release/winlibs-$64-gcc-$($vers[0])-llvm-$($vers[1])-mingw-w64-$($vers[2])-$($vers[3]).zip"
           $x64Path = "$env:RUNNER_TEMP/mingw64.zip"
           Invoke-WebRequest -Uri $x64Url -OutFile $x64Path
 
           # Extract both
+          # You might want to extract into architecture-specific subdirectories for clarity,
+          # but adding both bin folders to PATH as you are doing is also common.
+          # Make sure the paths exist after extraction. winlibs usually extracts into a subfolder.
+          # E.g., C:/mingw32/mingw32/bin and C:/mingw64/mingw64/bin is likely correct.
           Expand-Archive -Path $x86Path -DestinationPath "C:/mingw32"
           Expand-Archive -Path $x64Path -DestinationPath "C:/mingw64"
 
