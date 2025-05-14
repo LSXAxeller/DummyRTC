@@ -10,28 +10,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Windows builds
+          # Windows builds (now using MinGW)
           - os: windows-latest
             rid: win-x64
             platform: Windows
             arch: x64
-            toolchain: msvc
-            cross_file: ""
+            toolchain: mingw
+            cross_file: "windows-x64.crossfile"
             
           - os: windows-latest
             rid: win-x86
             platform: Windows
             arch: x86
-            toolchain: msvc
-            cross_file: ""
+            toolchain: mingw
+            cross_file: "windows-x86.crossfile"
             
-          - os: windows-latest
-            rid: win-arm64
-            platform: Windows
-            arch: arm64
-            toolchain: msvc
-            cross_file: ""
-
           # Linux builds
           - os: ubuntu-latest
             rid: linux-x64
@@ -102,23 +95,25 @@ jobs:
     name: Build for ${{ matrix.platform }} - ${{ matrix.arch }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
       # Setup Python and Meson
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.13'
 
       - name: Install Meson and Ninja
         run: pip install meson ninja
 
-      # Windows-specific setup
-      - name: Setup MSVC (Windows)
+      # Install MinGW for Windows builds
+      - name: Install MinGW (Windows)
         if: matrix.platform == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
+        run: |
+          choco install mingw -y --no-progress
+          echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
 
       # Linux dependencies
       - name: Install Linux dependencies
@@ -126,9 +121,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential pkg-config
-          if [ "${{ matrix.platform }}" == "Linux" ]; then
-            sudo apt-get install -y gcc g++
+          
+          # For cross-compilation
+          if [ "${{ matrix.rid }}" == "linux-arm" ]; then
+            sudo apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+          elif [ "${{ matrix.rid }}" == "linux-arm64" ]; then
+            sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           fi
+          
           if [ "${{ matrix.platform }}" == "Android" ]; then
             sudo apt-get install -y clang
           fi
@@ -136,13 +136,66 @@ jobs:
       # Android NDK setup
       - name: Setup Android NDK
         if: matrix.platform == 'Android'
-        uses: android-actions/setup-ndk@v2
+        - uses: nttld/setup-ndk@v1
+	   with:
+	     ndk-version: r26d
+	     local-cache: true
 
       # Generate cross files for platforms that need them
       - name: Generate cross files
         shell: bash
         run: |
           mkdir -p crossfiles
+          
+          # Windows x86
+          if [ "${{ matrix.rid }}" == "win-x86" ]; then
+            cat > crossfiles/windows-x86.crossfile <<EOF
+            [binaries]
+            c = 'i686-w64-mingw32-gcc'
+            cpp = 'i686-w64-mingw32-g++'
+            ar = 'i686-w64-mingw32-gcc-ar'
+            strip = 'i686-w64-mingw32-gcc-strip'
+            ranlib = 'i686-w64-mingw32-gcc-ranlib'
+            windres = 'i686-w64-mingw32-windres'
+
+            [host_machine]
+            system = 'windows'
+            cpu_family = 'x86'
+            cpu = 'i686'
+            endian = 'little'
+
+            [properties]
+            c_args = ['-m32', '-msse2']
+            cpp_args = ['-m32', '-msse2']
+            c_link_args = ['-static', '-m32']
+            cpp_link_args = ['-static', '-m32']
+            EOF
+          fi
+          
+          # Windows x64
+          if [ "${{ matrix.rid }}" == "win-x64" ]; then
+            cat > crossfiles/windows-x64.crossfile <<EOF
+            [binaries]
+            c = 'x86_64-w64-mingw32-gcc'
+            cpp = 'x86_64-w64-mingw32-g++'
+            ar = 'x86_64-w64-mingw32-gcc-ar'
+            strip = 'x86_64-w64-mingw32-gcc-strip'
+            ranlib = 'x86_64-w64-mingw32-gcc-ranlib'
+            windres = 'x86_64-w64-mingw32-windres'
+
+            [host_machine]
+            system = 'windows'
+            cpu_family = 'x86_64'
+            cpu = 'x86_64'
+            endian = 'little'
+
+            [properties]
+            c_args = ['-m64']
+            cpp_args = ['-m64']
+            c_link_args = ['-static', '-m64']
+            cpp_link_args = ['-static', '-m64']
+            EOF
+          fi
           
           # Linux ARM
           if [ "${{ matrix.rid }}" == "linux-arm" ]; then
@@ -280,10 +333,6 @@ jobs:
         run: |
           BUILD_DIR="build_${{ matrix.rid }}"
           EXTRA_ARGS=""
-          
-          if [ "${{ matrix.platform }}" == "Windows" ]; then
-            EXTRA_ARGS="--default-library=shared"
-          fi
           
           if [ -n "${{ matrix.cross_file }}" ]; then
             meson setup $BUILD_DIR --cross-file crossfiles/${{ matrix.cross_file }} $EXTRA_ARGS
