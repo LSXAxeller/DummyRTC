@@ -160,13 +160,17 @@ jobs:
           BUILD_DIR="build_${{ matrix.rid }}"
           ninja -C $BUILD_DIR
 
-      # Install and package artifacts
-      - name: Install and package
+      # Package the artifacts
+      - name: Copy artifacts
         shell: bash
         run: |
-          BUILD_DIR="build_${{ matrix.rid }}"
+          BUILD_DIR="build_${{ matrix.rid }}/webrtc/modules/audio_processing"
           OUTPUT_DIR="runtimes/${{ matrix.rid }}/native"
           
+          # List contents of the build directory before copying
+          echo "Listing contents of BUILD_DIR: $BUILD_DIR"
+          ls -l "$BUILD_DIR"
+
           mkdir -p $OUTPUT_DIR
           
           if [ "${{ matrix.platform }}" == "Windows" ]; then
