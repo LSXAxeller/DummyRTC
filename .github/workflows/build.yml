@@ -137,9 +137,6 @@ jobs:
       - name: Setup Android NDK
         if: matrix.platform == 'Android'
         uses: nttld/setup-ndk@v1
-	with:
-          ndk-version: r26d
-	  local-cache: true
 	
       # Generate cross files for platforms that need them
       - name: Generate cross files
