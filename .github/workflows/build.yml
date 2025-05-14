@@ -25,15 +25,6 @@ jobs:
             toolchain: mingw
             cross_file: "windows-x86.crossfile"
 
-          # iOS builds
-          - os: macos-latest
-            rid: ios-arm64
-            platform: iOS
-            arch: arm64
-            toolchain: clang
-            cross_file: "ios.crossfile"
-
-
     name: Build for ${{ matrix.platform }} - ${{ matrix.arch }}
 
     steps:
@@ -51,18 +42,19 @@ jobs:
         run: pip install meson ninja
 
       # Install MinGW for Windows builds
-      # Install MinGW for Windows builds
       - name: Set up MinGW (Windows - x64)
         if: matrix.platform == 'Windows' && matrix.arch == 'x64'
         uses: egor-tensin/setup-mingw@v2
         with:
           platform: x64
+          static: any
 
       - name: Set up MinGW (Windows - x86)
         if: matrix.platform == 'Windows' && matrix.arch == 'x86'
         uses: egor-tensin/setup-mingw@v2
         with:
           platform: any
+          static: any
 
       # Linux dependencies
       - name: Install Linux dependencies
