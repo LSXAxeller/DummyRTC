@@ -1,28 +1,27 @@
-[binaries]
-c = ['clang', '-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
-cpp = ['clang++', '-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
-objc = ['clang', '-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
-objcpp = ['clang++', '-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
-ar = 'ar'
-strip = 'strip'
-
-[built-in options]
-c_args = ['-miphoneos-version-min=11.0']
-cpp_args = ['-miphoneos-version-min=11.0']
-c_link_args = ['-miphoneos-version-min=11.0']
-cpp_link_args = ['-miphoneos-version-min=11.0']
-objc_args = ['-miphoneos-version-min=11.0']
-objcpp_args = ['-miphoneos-version-min=11.0']
-
-[properties]
-root = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer'
-has_function_printf = true
-has_function_hfkerhisadf = false
-
 [host_machine]
 system = 'darwin'
-subsystem = 'ios'
-kernel = 'xnu'
 cpu_family = 'aarch64'
-cpu = 'aarch64'
+cpu = 'arm64'
 endian = 'little'
+
+[binaries]
+ar = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar'
+as = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as'
+c = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang'
+cc = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang'
+cpp = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang'
+cxx = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++'
+ld = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld'
+objc = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang'
+objcpp = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++'
+ranlib = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib'
+strip = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip'
+
+[properties]
+skip_sanity_check = true
+ios_deployment_target = '13.0'
+vendor = 'apple'
+target_dir = 'apple-iphoneos13.0-aarch64-arm64-little'
+sys_root = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk'
+objcpp_args = ['-arch', 'arm64']
+objcpp_link_args = ['-arch', 'arm64']

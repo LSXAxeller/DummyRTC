@@ -25,6 +25,14 @@ jobs:
             toolchain: mingw
             cross_file: "windows-x86.crossfile"
 
+          # iOS builds
+          - os: macos-latest
+            rid: ios-arm64
+            platform: iOS
+            arch: arm64
+            toolchain: clang
+            cross_file: "ios.crossfile"
+
 
     name: Build for ${{ matrix.platform }} - ${{ matrix.arch }}
 
@@ -44,40 +52,17 @@ jobs:
 
       # Install MinGW for Windows builds
       # Install MinGW for Windows builds
-      - name: Install MinGW (Windows)
-        if: matrix.platform == 'Windows'
-        shell: powershell
-        run: |
-          # Download and extract both x86 and x64 versions
-          $Release = "10.2.0-11.0.0-8.0.0-r8"
-          $UrlBase = "https://github.com/brechtsanders/winlibs_mingw/releases/download"
-          $32 = "i686-posix-dwarf"
-          $64 = "x86_64-posix-seh"
-          $vers = $Release.Split("-")
+      - name: Set up MinGW (Windows - x64)
+        if: matrix.platform == 'Windows' && matrix.arch == 'x64'
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
 
-          # Download x86 version
-          # Corrected line: Removed extra closing parenthesis and .TrimStart('r')
-          $x86Url = "$UrlBase/$Release/winlibs-$32-gcc-$($vers[0])-llvm-$($vers[1])-mingw-w64-$($vers[2])-$($vers[3]).zip"
-          $x86Path = "$env:RUNNER_TEMP/mingw32.zip"
-          Invoke-WebRequest -Uri $x86Url -OutFile $x86Path
-
-          # Download x64 version
-          # Corrected line: Removed extra closing parenthesis and .TrimStart('r')
-          $x64Url = "$UrlBase/$Release/winlibs-$64-gcc-$($vers[0])-llvm-$($vers[1])-mingw-w64-$($vers[2])-$($vers[3]).zip"
-          $x64Path = "$env:RUNNER_TEMP/mingw64.zip"
-          Invoke-WebRequest -Uri $x64Url -OutFile $x64Path
-
-          # Extract both
-          # You might want to extract into architecture-specific subdirectories for clarity,
-          # but adding both bin folders to PATH as you are doing is also common.
-          # Make sure the paths exist after extraction. winlibs usually extracts into a subfolder.
-          # E.g., C:/mingw32/mingw32/bin and C:/mingw64/mingw64/bin is likely correct.
-          Expand-Archive -Path $x86Path -DestinationPath "C:/mingw32"
-          Expand-Archive -Path $x64Path -DestinationPath "C:/mingw64"
-
-          # Add both to PATH
-          echo "C:/mingw32/mingw32/bin" >> $GITHUB_PATH
-          echo "C:/mingw64/mingw64/bin" >> $GITHUB_PATH
+      - name: Set up MinGW (Windows - x86)
+        if: matrix.platform == 'Windows' && matrix.arch == 'x86'
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: any
 
       # Linux dependencies
       - name: Install Linux dependencies
