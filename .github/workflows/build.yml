@@ -1,106 +1,347 @@
-name: Build Library
+name: Build WebRTC Audio Processing
 
-on: [push, pull_request]
+on:
+  push:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        architecture: [arm64, x64, x86]
+        include:
+          # Windows builds
+          - os: windows-latest
+            rid: win-x64
+            platform: Windows
+            arch: x64
+            toolchain: msvc
+            cross_file: ""
+            
+          - os: windows-latest
+            rid: win-x86
+            platform: Windows
+            arch: x86
+            toolchain: msvc
+            cross_file: ""
+            
+          - os: windows-latest
+            rid: win-arm64
+            platform: Windows
+            arch: arm64
+            toolchain: msvc
+            cross_file: ""
+
+          # Linux builds
+          - os: ubuntu-latest
+            rid: linux-x64
+            platform: Linux
+            arch: x86_64
+            toolchain: gcc
+            cross_file: ""
+            
+          - os: ubuntu-latest
+            rid: linux-arm
+            platform: Linux
+            arch: armv7l
+            toolchain: gcc
+            cross_file: "linux-arm.crossfile"
+            
+          - os: ubuntu-latest
+            rid: linux-arm64
+            platform: Linux
+            arch: aarch64
+            toolchain: gcc
+            cross_file: "linux-arm64.crossfile"
+
+          # macOS builds
+          - os: macos-latest
+            rid: osx-x64
+            platform: macOS
+            arch: x86_64
+            toolchain: clang
+            cross_file: ""
+            
+          - os: macos-latest
+            rid: osx-arm64
+            platform: macOS
+            arch: arm64
+            toolchain: clang
+            cross_file: ""
+
+          # iOS builds
+          - os: macos-latest
+            rid: ios-arm64
+            platform: iOS
+            arch: arm64
+            toolchain: clang
+            cross_file: "ios.crossfile"
+
+          # Android builds
+          - os: ubuntu-latest
+            rid: android-arm
+            platform: Android
+            arch: armeabi-v7a
+            toolchain: clang
+            cross_file: "android-arm.crossfile"
+            
+          - os: ubuntu-latest
+            rid: android-arm64
+            platform: Android
+            arch: arm64-v8a
+            toolchain: clang
+            cross_file: "android-arm64.crossfile"
+            
+          - os: ubuntu-latest
+            rid: android-x64
+            platform: Android
+            arch: x86_64
+            toolchain: clang
+            cross_file: "android-x64.crossfile"
+
+    name: Build for ${{ matrix.platform }} - ${{ matrix.arch }}
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up MSYS2
-        uses: msys2/setup-msys2@v2
+      - uses: actions/checkout@v3
         with:
-          update: true
-          install: >-
-            mingw-w64-x86_64-toolchain
-            mingw-w64-i686-toolchain
-            mingw-w64-ucrt-x86_64-toolchain
-            mingw-w64-cross-toolchain
-            meson
-            ninja
+          submodules: recursive
 
-      - name: Build Meson (arm64)
-        if: matrix.architecture == 'arm64'
-        shell: msys2 {0}
+      # Setup Python and Meson
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Meson and Ninja
+        run: pip install meson ninja
+
+      # Windows-specific setup
+      - name: Setup MSVC (Windows)
+        if: matrix.platform == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      # Linux dependencies
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          pacman -S --noconfirm --needed mingw-w64-cross-toolchain
-          meson setup build/build_static_arm64 --cross-file cross_arm64.txt
-          meson compile -C build/build_static_arm64
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config
+          if [ "${{ matrix.platform }}" == "Linux" ]; then
+            sudo apt-get install -y gcc g++
+          fi
+          if [ "${{ matrix.platform }}" == "Android" ]; then
+            sudo apt-get install -y clang
+          fi
 
-      - name: Build Meson (x86)
-        if: matrix.architecture == 'x86'
-        shell: msys2 {0}
-        run: |
-          pacman -S --noconfirm --needed mingw-w64-i686-toolchain
-          meson setup build/build_static_x86 --cross-file cross_win32.txt
-          meson compile -C build/build_static_x86
+      # Android NDK setup
+      - name: Setup Android NDK
+        if: matrix.platform == 'Android'
+        uses: android-actions/setup-ndk@v2
 
-      - name: Build Meson (x64)
-        if: matrix.architecture == 'x64'
-        shell: msys2 {0}
-        run: |
-          pacman -S --noconfirm --needed mingw-w64-x86_64-toolchain
-          meson setup build/build_static_x64 --cross-file cross_win64.txt
-          meson compile -C build/build_static_x64
-
-      - name: Verify build directory (Debug)
+      # Generate cross files for platforms that need them
+      - name: Generate cross files
         shell: bash
         run: |
-          echo "Build directory contents:"
-          # Check if the 'build' directory exists before listing recursively
-          build_dir="build/build_static_${{ matrix.architecture }}"
-          echo "Checking directory: ${build_dir}"
-          if [ -d "${build_dir}" ]; then
-            echo "Directory exists. Listing contents:"
-            # Use find for recursive listing, ls -R can behave differently on platforms
-            find "${build_dir}" -print
-          else
-            echo "Error: Expected build subdirectory ${build_dir} not found after build step!"
-            # Using exit 1 here makes the step correctly fail
-            exit 1
+          mkdir -p crossfiles
+          
+          # Linux ARM
+          if [ "${{ matrix.rid }}" == "linux-arm" ]; then
+            cat > crossfiles/linux-arm.crossfile <<EOF
+            [binaries]
+            c = 'arm-linux-gnueabihf-gcc'
+            cpp = 'arm-linux-gnueabihf-g++'
+            ar = 'arm-linux-gnueabihf-ar'
+            strip = 'arm-linux-gnueabihf-strip'
+            
+            [host_machine]
+            system = 'linux'
+            cpu_family = 'arm'
+            cpu = 'armv7l'
+            endian = 'little'
+            EOF
+          fi
+          
+          # Linux ARM64
+          if [ "${{ matrix.rid }}" == "linux-arm64" ]; then
+            cat > crossfiles/linux-arm64.crossfile <<EOF
+            [binaries]
+            c = 'aarch64-linux-gnu-gcc'
+            cpp = 'aarch64-linux-gnu-g++'
+            ar = 'aarch64-linux-gnu-ar'
+            strip = 'aarch64-linux-gnu-strip'
+            
+            [host_machine]
+            system = 'linux'
+            cpu_family = 'aarch64'
+            cpu = 'aarch64'
+            endian = 'little'
+            EOF
+          fi
+          
+          # iOS
+          if [ "${{ matrix.platform }}" == "iOS" ]; then
+            cat > crossfiles/ios.crossfile <<EOF
+            [host_machine]
+            system = 'darwin'
+            cpu_family = 'aarch64'
+            cpu = 'aarch64'
+            endian = 'little'
+
+            [properties]
+            c_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+            cpp_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+            objc_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+            objcpp_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+            c_link_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+            cpp_link_args = ['-arch', 'arm64', '--sysroot=$(xcrun --sdk iphoneos --show-sdk-path)', '-miphoneos-version-min=11.0']
+
+            [binaries]
+            c = '$(xcrun --find --sdk iphoneos clang)'
+            cpp = '$(xcrun --find --sdk iphoneos clang++)'
+            objc = '$(xcrun --find --sdk iphoneos clang)'
+            objcpp = '$(xcrun --find --sdk iphoneos clang++)'
+            ar = '$(xcrun --find --sdk iphoneos ar)'
+            strip = '$(xcrun --find --sdk iphoneos strip)'
+            EOF
+          fi
+          
+          # Android
+          if [ "${{ matrix.platform }}" == "Android" ]; then
+            NDK_ROOT="$ANDROID_NDK_ROOT"
+            API_LEVEL=21
+            
+            if [ "${{ matrix.arch }}" == "armeabi-v7a" ]; then
+              cat > crossfiles/android-arm.crossfile <<EOF
+              [constants]
+              ndk_root = '$NDK_ROOT'
+              api_level = '$API_LEVEL'
+              toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi'
+
+              [host_machine]
+              system = 'android'
+              cpu_family = 'arm'
+              cpu = 'armv7'
+              endian = 'little'
+
+              [properties]
+              c_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
+              cpp_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
+
+              [binaries]
+              c = toolchain + api_level + '-clang'
+              cpp = toolchain + api_level + '-clang++'
+              ar = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar'
+              strip = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip'
+              EOF
+            elif [ "${{ matrix.arch }}" == "arm64-v8a" ]; then
+              cat > crossfiles/android-arm64.crossfile <<EOF
+              [constants]
+              ndk_root = '$NDK_ROOT'
+              api_level = '$API_LEVEL'
+              toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android'
+
+              [host_machine]
+              system = 'android'
+              cpu_family = 'aarch64'
+              cpu = 'aarch64'
+              endian = 'little'
+
+              [binaries]
+              c = toolchain + api_level + '-clang'
+              cpp = toolchain + api_level + '-clang++'
+              ar = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar'
+              strip = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-strip'
+              EOF
+            elif [ "${{ matrix.arch }}" == "x86_64" ]; then
+              cat > crossfiles/android-x64.crossfile <<EOF
+              [constants]
+              ndk_root = '$NDK_ROOT'
+              api_level = '$API_LEVEL'
+              toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android'
+
+              [host_machine]
+              system = 'android'
+              cpu_family = 'x86_64'
+              cpu = 'x86_64'
+              endian = 'little'
+
+              [binaries]
+              c = toolchain + api_level + '-clang'
+              cpp = toolchain + api_level + '-clang++'
+              ar = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar'
+              strip = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-strip'
+              EOF
+            fi
           fi
 
-      - name: Collect artifacts (Static Lib)
+      # Configure Meson
+      - name: Configure Meson
         shell: bash
         run: |
-          mkdir -p artifacts
-          echo "Copying build outputs..."
-
-          current_arch=${{ matrix.architecture }}
-          echo "Processing $current_arch..."
-
-          build_dir="build/build_static_${current_arch}"
-
-          # Find and copy static libs (.lib or .a)
-          # Use find with -exec cp {} artifacts/ \; or xargs for better handling of many files
-          # Add a check to ensure the source directory exists
-          if [ ! -d "${build_dir}" ]; then
-            echo "Error: Build directory '${build_dir}' not found during artifact collection!"
-            exit 1
+          BUILD_DIR="build_${{ matrix.rid }}"
+          EXTRA_ARGS=""
+          
+          if [ "${{ matrix.platform }}" == "Windows" ]; then
+            EXTRA_ARGS="--default-library=shared"
           fi
-
-          # Find files, print them, then copy. Use xargs for robustness.
-          find "${build_dir}" \( -name "*.lib" -o -name "*.a" \) -print0 | xargs -0 -I {} cp "{}" artifacts/
-
-          # Check if any files were copied
-          if [ -z "$(ls -A artifacts/ 2>/dev/null)" ]; then
-            echo "Warning: No static library files (.lib or .a) were found and copied to artifacts for ${current_arch}."
-            # The upload step is configured to fail if no files are found,
-            # so we don't necessarily need exit 1 here unless you want this step
-            # specifically to fail before upload.
+          
+          if [ -n "${{ matrix.cross_file }}" ]; then
+            meson setup $BUILD_DIR --cross-file crossfiles/${{ matrix.cross_file }} $EXTRA_ARGS
           else
-            echo "Successfully collected artifacts for ${current_arch}:"
-            ls -lh artifacts/
+            meson setup $BUILD_DIR $EXTRA_ARGS
           fi
 
-      - name: Upload artifacts
+      # Build with Ninja
+      - name: Build with Ninja
+        shell: bash
+        run: |
+          BUILD_DIR="build_${{ matrix.rid }}"
+          ninja -C $BUILD_DIR
+
+      # Install and package artifacts
+      - name: Install and package
+        shell: bash
+        run: |
+          BUILD_DIR="build_${{ matrix.rid }}"
+          OUTPUT_DIR="runtimes/${{ matrix.rid }}/native"
+          
+          mkdir -p $OUTPUT_DIR
+          
+          if [ "${{ matrix.platform }}" == "Windows" ]; then
+            cp $BUILD_DIR/*.dll $OUTPUT_DIR/
+          elif [ "${{ matrix.platform }}" == "iOS" ]; then
+            # For iOS, we might need to package a framework
+            mkdir -p $OUTPUT_DIR/webrtc_audio_processing.framework
+            cp $BUILD_DIR/libwebrtc_audio_processing.dylib $OUTPUT_DIR/webrtc_audio_processing.framework/webrtc_audio_processing
+          elif [ "${{ matrix.platform }}" == "macOS" ]; then
+            cp $BUILD_DIR/libwebrtc_audio_processing.dylib $OUTPUT_DIR/
+          else
+            cp $BUILD_DIR/libwebrtc_audio_processing.so $OUTPUT_DIR/
+          fi
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: webrtc-audio-processing-static-${{ matrix.architecture }}
-          path: artifacts/
-          if-no-files-found: error # Ensure step fails if no artifacts were collected
+          name: ${{ matrix.rid }}
+          path: runtimes/${{ matrix.rid }}
+
+  package:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create final package
+        run: |
+          mkdir -p runtimes
+          cp -r artifacts/* runtimes/
+          zip -r webrtc-audio-processing.zip runtimes
+
+      - name: Upload final package
+        uses: actions/upload-artifact@v4
+        with:
+          name: webrtc-audio-processing
+          path: webrtc-audio-processing.zip
