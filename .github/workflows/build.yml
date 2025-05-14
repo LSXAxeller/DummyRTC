@@ -117,7 +117,7 @@ jobs:
 
       # Linux dependencies
       - name: Install Linux dependencies
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.platform == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential pkg-config
@@ -128,17 +128,19 @@ jobs:
           elif [ "${{ matrix.rid }}" == "linux-arm64" ]; then
             sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           fi
-          
-          if [ "${{ matrix.platform }}" == "Android" ]; then
-            sudo apt-get install -y clang
-          fi
 
-      # Android NDK setup
-      - name: Setup Android NDK
+      # Android setup
+      - name: Install Dependencies (Android)
         if: matrix.platform == 'Android'
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r26d
+        uses: android-actions/setup-android@v2
+
+      - name: Set up Android NDK
+        if: matrix.platform == 'Android'
+        shell: bash
+        run: |
+          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT" >> $GITHUB_ENV
+          echo "NDK version:"
+          $ANDROID_NDK_ROOT/ndk-build --version
 
       # Configure Meson
       - name: Configure Meson
