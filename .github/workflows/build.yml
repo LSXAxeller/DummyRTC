@@ -25,28 +25,6 @@ jobs:
             toolchain: mingw
             cross_file: "windows-x86.crossfile"
 
-          # Android builds
-          - os: ubuntu-latest
-            rid: android-arm
-            platform: Android
-            arch: armeabi-v7a
-            toolchain: clang
-            cross_file: "android-arm.crossfile"
-
-          - os: ubuntu-latest
-            rid: android-arm64
-            platform: Android
-            arch: arm64-v8a
-            toolchain: clang
-            cross_file: "android-arm64.crossfile"
-
-          - os: ubuntu-latest
-            rid: android-x64
-            platform: Android
-            arch: x86_64
-            toolchain: clang
-            cross_file: "android-x64.crossfile"
-
     name: Build for ${{ matrix.platform }} - ${{ matrix.arch }}
 
     steps:
@@ -66,6 +44,7 @@ jobs:
       # Install MinGW for Windows builds
       - name: Install MinGW (Windows)
         if: matrix.platform == 'Windows'
+        shell: powershell
         run: |
           # Download and extract both x86 and x64 versions
           $Release = "10.2.0-11.0.0-8.0.0-r8"
