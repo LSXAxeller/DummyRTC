@@ -1,5 +1,5 @@
 [constants]
-ndk_root = '$NDK_ROOT'
+ndk_root = '/opt/hostedtoolcache/ndk/r25c/x64'
 api_level = '21'
 toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android'
 

@@ -81,9 +81,9 @@ jobs:
           fi
 
       # Android setup
-      - name: Install Dependencies (Android)
-        if: matrix.platform == 'Android'
-        uses: android-actions/setup-android@v2
+      #- name: Install Dependencies (Android)
+      #  if: matrix.platform == 'Android'
+      #  uses: android-actions/setup-android@v2
 
       - name: Set up Android NDK
         if: matrix.platform == 'Android'
