@@ -210,25 +210,27 @@ jobs:
           ninja -C $BUILD_DIR
 
       # Package the artifacts
-      - name: Copy artifacts
+      - name: Copy and rename artifacts
         shell: bash
         run: |
           BUILD_DIR="build_${{ matrix.rid }}/webrtc/modules/audio_processing"
           OUTPUT_DIR="runtimes/${{ matrix.rid }}/native"
           
-          # List contents of the build directory before copying
           echo "Listing contents of BUILD_DIR: $BUILD_DIR"
           ls -l "$BUILD_DIR"
-
-          mkdir -p $OUTPUT_DIR
+          
+          mkdir -p "$OUTPUT_DIR"
           
           if [ "${{ matrix.platform }}" == "Windows" ]; then
-            cp $BUILD_DIR/*.dll $OUTPUT_DIR/
+            cp "$BUILD_DIR"/*.dll "$OUTPUT_DIR/webrtc-apm.dll"
           elif [ "${{ matrix.platform }}" == "iOS" ] || [ "${{ matrix.platform }}" == "macOS" ]; then
-            cp $BUILD_DIR/*.dylib $OUTPUT_DIR/
+            cp "$BUILD_DIR"/*.dylib "$OUTPUT_DIR/libwebrtc-apm.dylib"
           else
-            cp $BUILD_DIR/*.so $OUTPUT_DIR/
+            cp "$BUILD_DIR"/*.so "$OUTPUT_DIR/libwebrtc-apm.so"
           fi
+          
+          echo "Copied artifact to:"
+          ls -l "$OUTPUT_DIR"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
