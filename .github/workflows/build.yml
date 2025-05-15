@@ -104,6 +104,7 @@ jobs:
           brew install llvm
           echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
           echo "/opt/homebrew/opt/llvm/lib" >> $GITHUB_PATH
+          echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
 
       # Configure Meson
       - name: Configure Meson
