@@ -5,17 +5,17 @@ cpu = 'arm64'
 endian = 'little'
 
 [binaries]
-ar = '/usr/local/opt/llvm/bin/llvm-ar'
-as = '/usr/local/opt/llvm/bin/llvm-as'
-c = '/usr/local/opt/llvm/bin/clang'
-cc = '/usr/local/opt/llvm/bin/clang'
-cpp = '/usr/local/opt/llvm/bin/clang-cpp'
-cxx = '/usr/local/opt/llvm/bin/clang++'
-ld = '/usr/local/opt/llvm/bin/ld.lld'
-objc = '/usr/local/opt/llvm/bin/clang'
-objcpp = '/usr/local/opt/llvm/bin/clang++'
-ranlib = '/usr/local/opt/llvm/bin/llvm-ranlib'
-strip = '/usr/local/opt/llvm/bin/llvm-strip'
+ar = '/opt/homebrew/opt/llvm/bin/llvm-ar'
+as = '/opt/homebrew/opt/llvm/bin/llvm-as'
+c = '/opt/homebrew/opt/llvm/bin/clang'
+cc = '/opt/homebrew/opt/llvm/bin/clang'
+cpp = '/opt/homebrew/opt/llvm/bin/clang-cpp'
+cxx = '/opt/homebrew/opt/llvm/bin/clang++'
+ld = '/opt/homebrew/opt/llvm/bin/ld.lld'
+objc = '/opt/homebrew/opt/llvm/bin/clang'
+objcpp = '/opt/homebrew/opt/llvm/bin/clang++'
+ranlib = '/opt/homebrew/opt/llvm/bin/llvm-ranlib'
+strip = '/opt/homebrew/opt/llvm/bin/llvm-strip'
 
 [properties]
 skip_sanity_check = true
