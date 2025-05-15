@@ -1,3 +1,8 @@
+[constants]
+ndk_root = '$NDK_ROOT'
+api_level = '21'
+toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android'
+
 [host_machine]
 system = 'android'
 cpu_family = 'x86_64'
@@ -5,7 +10,7 @@ cpu = 'x86_64'
 endian = 'little'
 
 [binaries]
-c = get_env('ANDROID_NDK_ROOT') + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang'
-cpp = get_env('ANDROID_NDK_ROOT') + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang++'
-ar = get_env('ANDROID_NDK_ROOT') + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar'
-strip = get_env('ANDROID_NDK_ROOT') + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-strip'
+c = toolchain + api_level + '-clang'
+cpp = toolchain + api_level + '-clang++'
+ar = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar'
+strip = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-strip'

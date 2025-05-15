@@ -17,6 +17,7 @@ jobs:
             arch: armeabi-v7a
             toolchain: clang
             cross_file: "android-arm.crossfile"
+            compiler_prefix: "armv7a-linux-androideabi"
 
           - os: ubuntu-latest
             rid: android-arm64
@@ -24,6 +25,7 @@ jobs:
             arch: arm64-v8a
             toolchain: clang
             cross_file: "android-arm64.crossfile"
+            compiler_prefix: "aarch64-linux-android"
 
           - os: ubuntu-latest
             rid: android-x64
@@ -31,7 +33,7 @@ jobs:
             arch: x86_64
             toolchain: clang
             cross_file: "android-x64.crossfile"
-
+            compiler_prefix: "x86_64-linux-android"
 
     name: Build for ${{ matrix.platform }} - ${{ matrix.arch }}
 
@@ -85,19 +87,21 @@ jobs:
 
       - name: Set up Android NDK
         if: matrix.platform == 'Android'
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r25c
+          add-to-path: false
+
+      - name: Configure environment for Android
+        if: matrix.platform == 'Android'
         shell: bash
         run: |
-          # Set API level
           echo "API_LEVEL=21" >> $GITHUB_ENV
-          
-          # Determine compiler prefix based on architecture
-          if [ "${{ matrix.arch }}" == "armeabi-v7a" ]; then
-            echo "COMPILER_PREFIX=armv7a-linux-androideabi" >> $GITHUB_ENV
-          elif [ "${{ matrix.arch }}" == "arm64-v8a" ]; then
-            echo "COMPILER_PREFIX=aarch64-linux-android" >> $GITHUB_ENV
-          elif [ "${{ matrix.arch }}" == "x86_64" ]; then
-            echo "COMPILER_PREFIX=x86_64-linux-android" >> $GITHUB_ENV
-          fi
+          echo "NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
+          echo "TOOLCHAIN_ROOT=${NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64" >> $GITHUB_ENV
+          echo "The NDK Root is: $NDK_ROOT"
+          echo "The Toolchain Root is: $TOOLCHAIN_ROOT"
 
 
       - name: Install Xcode Command Line Tools (iOS)
