@@ -28,27 +28,7 @@ c_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Devel
 cpp_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
 objc_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
 objcpp_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
-
-c_link_args = [
-  '-arch', 'arm64',
-  '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk',
-  '-Wl,-latomic,-undefined,dynamic_lookup'
-]
-
-cpp_link_args = [
-  '-arch', 'arm64',
-  '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk',
-  '-Wl,-latomic,-undefined,dynamic_lookup'
-]
-
-objc_link_args = [
-  '-arch', 'arm64',
-  '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk',
-  '-Wl,-latomic,-undefined,dynamic_lookup'
-]
-
-objcpp_link_args = [
-  '-arch', 'arm64',
-  '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk',
-  '-Wl,-latomic,-undefined,dynamic_lookup'
-]
+c_link_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk', '-Wl,-latomic,-undefined,dynamic_lookup']
+cpp_link_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk', '-Wl,-latomic,-undefined,dynamic_lookup']
+objc_link_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk', '-Wl,-latomic,-undefined,dynamic_lookup']
+objcpp_link_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk', '-Wl,-latomic,-undefined,dynamic_lookup']
