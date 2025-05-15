@@ -16,5 +16,5 @@ cpp_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
 [binaries]
 c = toolchain_prefix + 'armv7a-linux-androideabi' + api_level + '-clang'
 cpp = toolchain_prefix + 'armv7a-linux-androideabi' + api_level + '-clang++'
-ar = toolchain_prefix + 'armv7a-linux-androideabi-ar'
-strip = toolchain_prefix + 'armv7a-linux-androideabi-strip'
+ar = toolchain_prefix + 'llvm-ar'
+strip = toolchain_prefix + 'llvm-strip'

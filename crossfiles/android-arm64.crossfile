@@ -12,5 +12,5 @@ endian = 'little'
 [binaries]
 c = toolchain_prefix + 'aarch64-linux-android' + api_level + '-clang'
 cpp = toolchain_prefix + 'aarch64-linux-android' + api_level + '-clang++'
-ar = toolchain_prefix + 'aarch64-linux-android-ar'
-strip = toolchain_prefix + 'aarch64-linux-android-strip'
+ar = toolchain_prefix + 'llvm-ar'
+strip = toolchain_prefix + 'llvm-strip'
