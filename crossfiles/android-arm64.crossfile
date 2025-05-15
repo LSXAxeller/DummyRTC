@@ -1,5 +1,5 @@
 [constants]
-ndk_root = '$ANDROID_NDK_ROOT'
+ndk_root = get_env('ANDROID_NDK_ROOT')
 api_level = '21'
 toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android'
 

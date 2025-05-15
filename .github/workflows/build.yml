@@ -10,13 +10,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # iOS builds
-          - os: macos-15
-            rid: ios-arm64
-            platform: iOS
-            arch: arm64
+          # Android builds
+          - os: ubuntu-latest
+            rid: android-arm
+            platform: Android
+            arch: armeabi-v7a
             toolchain: clang
-            cross_file: "ios.crossfile"
+            cross_file: "android-arm.crossfile"
+
+          - os: ubuntu-latest
+            rid: android-arm64
+            platform: Android
+            arch: arm64-v8a
+            toolchain: clang
+            cross_file: "android-arm64.crossfile"
+
+          - os: ubuntu-latest
+            rid: android-x64
+            platform: Android
+            arch: x86_64
+            toolchain: clang
+            cross_file: "android-x64.crossfile"
 
 
     name: Build for ${{ matrix.platform }} - ${{ matrix.arch }}
@@ -84,10 +98,6 @@ jobs:
           elif [ "${{ matrix.arch }}" == "x86_64" ]; then
             echo "COMPILER_PREFIX=x86_64-linux-android" >> $GITHUB_ENV
           fi
-          
-          echo "CC=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/${COMPILER_PREFIX}${API_LEVEL}-clang" >> $GITHUB_ENV
-          echo "CXX=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/${COMPILER_PREFIX}${API_LEVEL}-clang++" >> $GITHUB_ENV
-          echo "STRIP=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" >> $GITHUB_ENV
 
 
       - name: Install Xcode Command Line Tools (iOS)
@@ -146,11 +156,7 @@ jobs:
           
           if [ "${{ matrix.platform }}" == "Windows" ]; then
             cp $BUILD_DIR/*.dll $OUTPUT_DIR/
-          elif [ "${{ matrix.platform }}" == "iOS" ]; then
-            # For iOS, we need to package a framework
-            mkdir -p $OUTPUT_DIR/webrtc_audio_processing.framework
-            cp $BUILD_DIR/*.dylib $OUTPUT_DIR/webrtc_audio_processing.framework/webrtc_audio_processing
-          elif [ "${{ matrix.platform }}" == "macOS" ]; then
+          elif [ "${{ matrix.platform }}" == "iOS" ] || [ "${{ matrix.platform }}" == "macOS" ]; then
             cp $BUILD_DIR/*.dylib $OUTPUT_DIR/
           else
             cp $BUILD_DIR/*.so $OUTPUT_DIR/
