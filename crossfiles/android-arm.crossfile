@@ -10,8 +10,8 @@ cpu = 'armv7'
 endian = 'little'
 
 [built-in options]
-c_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
-cpp_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
+c_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon', '-D_LARGEFILE64_SOURCE']
+cpp_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon', '-D_LARGEFILE64_SOURCE']
 
 [binaries]
 c = toolchain_prefix + 'armv7a-linux-androideabi' + api_level + '-clang'
