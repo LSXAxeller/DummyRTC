@@ -33,7 +33,7 @@ jobs:
           python-version: '3.13'
 
       - name: Install Meson and Ninja
-        run: pip install meson ninja
+        run: pip install meson ninja --upgrade
 
       # Install MinGW for Windows builds
       - name: Set up MinGW (Windows - x64)
@@ -89,14 +89,21 @@ jobs:
           echo "CXX=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/${COMPILER_PREFIX}${API_LEVEL}-clang++" >> $GITHUB_ENV
           echo "STRIP=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" >> $GITHUB_ENV
 
+
+      - name: Install Xcode Command Line Tools (iOS)
+        if: matrix.platform == 'iOS'
+        run: |
+          xcode-select --install || true
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
       # Install Homebrew LLVM for iOS builds
       - name: Install Homebrew LLVM (IOS)
         if: matrix.platform == 'iOS'
         run: |
           brew update
           brew install llvm
-          echo "/usr/local/opt/llvm/bin" >> $GITHUB_PATH
-          echo "/usr/local/opt/llvm/lib" >> $GITHUB_PATH
+          echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+          echo "/opt/homebrew/opt/llvm/lib" >> $GITHUB_PATH
 
       # Configure Meson
       - name: Configure Meson
