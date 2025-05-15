@@ -5,17 +5,17 @@ cpu = 'arm64'
 endian = 'little'
 
 [binaries]
-ar = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar'
-as = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as'
-c = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang'
-cc = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang'
-cpp = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang'
-cxx = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++'
-ld = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld'
-objc = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang'
-objcpp = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++'
-ranlib = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib'
-strip = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip'
+ar = '/usr/local/opt/llvm/bin/llvm-ar'
+as = '/usr/local/opt/llvm/bin/llvm-as'
+c = '/usr/local/opt/llvm/bin/clang'
+cc = '/usr/local/opt/llvm/bin/clang'
+cpp = '/usr/local/opt/llvm/bin/clang-cpp'
+cxx = '/usr/local/opt/llvm/bin/clang++'
+ld = '/usr/local/opt/llvm/bin/ld.lld'
+objc = '/usr/local/opt/llvm/bin/clang'
+objcpp = '/usr/local/opt/llvm/bin/clang++'
+ranlib = '/usr/local/opt/llvm/bin/llvm-ranlib'
+strip = '/usr/local/opt/llvm/bin/llvm-strip'
 
 [properties]
 skip_sanity_check = true
@@ -24,11 +24,11 @@ vendor = 'apple'
 sys_root = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk'
 
 [built-in options]
-c_args = ['-arch', 'arm64']
-cpp_args = ['-arch', 'arm64']
-objc_args = ['-arch', 'arm64']
-objcpp_args = ['-arch', 'arm64']
-c_link_args = ['-arch', 'arm64']
-cpp_link_args = ['-arch', 'arm64']
-objc_link_args = ['-arch', 'arm64']
-objcpp_link_args = ['-arch', 'arm64']
+c_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+cpp_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+objc_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+objcpp_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+c_link_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+cpp_link_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+objc_link_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+objcpp_link_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']

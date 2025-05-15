@@ -89,6 +89,15 @@ jobs:
           echo "CXX=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/${COMPILER_PREFIX}${API_LEVEL}-clang++" >> $GITHUB_ENV
           echo "STRIP=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" >> $GITHUB_ENV
 
+      # Install Homebrew LLVM for iOS builds
+      - name: Install Homebrew LLVM (IOS)
+        if: matrix.platform == 'iOS'
+        run: |
+          brew update
+          brew install llvm
+          echo "/usr/local/opt/llvm/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/llvm/lib" >> $GITHUB_PATH
+
       # Configure Meson
       - name: Configure Meson
         shell: bash
