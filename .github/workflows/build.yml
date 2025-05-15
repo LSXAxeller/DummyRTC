@@ -11,7 +11,7 @@ jobs:
       matrix:
         include:
           # iOS builds
-          - os: macos-latest
+          - os: macos-15
             rid: ios-arm64
             platform: iOS
             arch: arm64
