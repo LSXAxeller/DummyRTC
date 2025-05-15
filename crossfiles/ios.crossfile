@@ -19,15 +19,36 @@ strip = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xcto
 [properties]
 skip_sanity_check = true
 ios_deployment_target = '13.0'
+needs_exe_wrapper = true
 vendor = 'apple'
 sys_root = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk'
 
 [built-in options]
-c_args = ['-arch', 'arm64']
-cpp_args = ['-arch', 'arm64']
-objc_args = ['-arch', 'arm64']
-objcpp_args = ['-arch', 'arm64']
-c_link_args = ['-arch', 'arm64']
-cpp_link_args = ['-arch', 'arm64', '-Wl, -latomic']
-objc_link_args = ['-arch', 'arm64']
-objcpp_link_args = ['-arch', 'arm64', '-Wl, -latomic']
+c_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+cpp_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+objc_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+objcpp_args = ['-arch', 'arm64', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk']
+
+c_link_args = [
+  '-arch', 'arm64',
+  '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk',
+  '-Wl,-latomic,-undefined,dynamic_lookup'
+]
+
+cpp_link_args = [
+  '-arch', 'arm64',
+  '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk',
+  '-Wl,-latomic,-undefined,dynamic_lookup'
+]
+
+objc_link_args = [
+  '-arch', 'arm64',
+  '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk',
+  '-Wl,-latomic,-undefined,dynamic_lookup'
+]
+
+objcpp_link_args = [
+  '-arch', 'arm64',
+  '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk',
+  '-Wl,-latomic,-undefined,dynamic_lookup'
+]
