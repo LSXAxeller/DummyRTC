@@ -1,7 +1,7 @@
 [constants]
 ndk_root = '/opt/hostedtoolcache/ndk/r25c/x64'
 api_level = '21'
-toolchain = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi'
+toolchain_prefix = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/'
 
 [host_machine]
 system = 'android'
@@ -14,7 +14,7 @@ c_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
 cpp_args = ['-march=armv7-a', '-mfloat-abi=softfp', '-mfpu=neon']
 
 [binaries]
-c = toolchain + api_level + '-clang'
-cpp = toolchain + api_level + '-clang++'
-ar = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar'
-strip = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip'
+c = toolchain_prefix + 'armv7a-linux-androideabi' + api_level + '-clang'
+cpp = toolchain_prefix + 'armv7a-linux-androideabi' + api_level + '-clang++'
+ar = toolchain_prefix + 'armv7a-linux-androideabi-ar'
+strip = toolchain_prefix + 'armv7a-linux-androideabi-strip'

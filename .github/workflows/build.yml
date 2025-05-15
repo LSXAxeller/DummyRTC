@@ -133,12 +133,7 @@ jobs:
           BUILD_DIR="build_${{ matrix.rid }}"
           EXTRA_ARGS=""
           
-          if [ "${{ matrix.platform }}" == "Android" ]; then
-              EXTRA_ARGS="--cross-file crossfiles/${{ matrix.cross_file }}"
-              EXTRA_ARGS+=" -Dc_args=--target=${COMPILER_PREFIX}${API_LEVEL}"
-              EXTRA_ARGS+=" -Dcpp_args=--target=${COMPILER_PREFIX}${API_LEVEL}"
-              meson setup $BUILD_DIR $EXTRA_ARGS
-          elif [ -n "${{ matrix.cross_file }}" ]; then
+          if [ -n "${{ matrix.cross_file }}" ]; then
             meson setup $BUILD_DIR --cross-file crossfiles/${{ matrix.cross_file }} $EXTRA_ARGS
           else
             meson setup $BUILD_DIR $EXTRA_ARGS
