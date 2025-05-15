@@ -1,5 +1,5 @@
 [constants]
-ndk_root = '/opt/hostedtoolcache/ndk/r25c/x64'
+ndk_root = '/opt/hostedtoolcache/ndk/r26d/x64'
 api_level = '21'
 toolchain_prefix = ndk_root + '/toolchains/llvm/prebuilt/linux-x86_64/bin/'
 

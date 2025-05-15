@@ -10,42 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Windows builds
-          - os: windows-latest
-            rid: win-x64
-            platform: Windows
-            arch: x64
-            toolchain: mingw
-            cross_file: "windows-x64.crossfile"
-
-          - os: windows-latest
-            rid: win-x86
-            platform: Windows
-            arch: x86
-            toolchain: mingw
-            cross_file: "windows-x86.crossfile"
-
-          # Linux builds
-          - os: ubuntu-latest
-            rid: linux-x64
-            platform: Linux
-            arch: x86_64
-            toolchain: gcc
-            cross_file: ""
-
-          - os: ubuntu-latest
-            rid: linux-arm
-            platform: Linux
-            arch: armv7l
-            toolchain: gcc
-            cross_file: "linux-arm.crossfile"
-
-          - os: ubuntu-latest
-            rid: linux-arm64
-            platform: Linux
-            arch: aarch64
-            toolchain: gcc
-            cross_file: "linux-arm64.crossfile"
 
           # macOS builds
           - os: macos-latest
@@ -54,21 +18,6 @@ jobs:
             arch: x86_64
             toolchain: clang
             cross_file: ""
-
-          - os: macos-latest
-            rid: osx-arm64
-            platform: macOS
-            arch: arm64
-            toolchain: clang
-            cross_file: ""
-
-          # iOS builds
-          - os: macos-15
-            rid: ios-arm64
-            platform: iOS
-            arch: arm64
-            toolchain: clang
-            cross_file: "ios.crossfile"
 
           # Android builds
           - os: ubuntu-latest
@@ -79,21 +28,6 @@ jobs:
             cross_file: "android-arm.crossfile"
             compiler_prefix: "armv7a-linux-androideabi"
 
-          - os: ubuntu-latest
-            rid: android-arm64
-            platform: Android
-            arch: arm64-v8a
-            toolchain: clang
-            cross_file: "android-arm64.crossfile"
-            compiler_prefix: "aarch64-linux-android"
-
-          - os: ubuntu-latest
-            rid: android-x64
-            platform: Android
-            arch: x86_64
-            toolchain: clang
-            cross_file: "android-x64.crossfile"
-            compiler_prefix: "x86_64-linux-android"
 
     name: Build for ${{ matrix.platform }} - ${{ matrix.arch }}
 
@@ -141,23 +75,18 @@ jobs:
           fi
 
       # Android setup
-      #- name: Install Dependencies (Android)
-      #  if: matrix.platform == 'Android'
-      #  uses: android-actions/setup-android@v2
-
       - name: Set up Android NDK
         if: matrix.platform == 'Android'
         uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r25c
+          ndk-version: r26d
           add-to-path: false
 
       - name: Configure environment for Android
         if: matrix.platform == 'Android'
         shell: bash
         run: |
-          echo "API_LEVEL=21" >> $GITHUB_ENV
           echo "NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
           echo "TOOLCHAIN_ROOT=${NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64" >> $GITHUB_ENV
 
@@ -170,7 +99,7 @@ jobs:
           echo "The Toolchain Root is: $TOOLCHAIN_ROOT"
           # List contents of the build directory before copying
           echo "Listing contents of Toolchain: $TOOLCHAIN_ROOT"
-          ls -l "/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/"
+          ls -l "/opt/hostedtoolcache/ndk/r26d/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/"
 
 
       - name: Install Xcode Command Line Tools (iOS)
@@ -224,7 +153,7 @@ jobs:
           if [ "${{ matrix.platform }}" == "Windows" ]; then
             cp "$BUILD_DIR"/*.dll "$OUTPUT_DIR/webrtc-apm.dll"
           elif [ "${{ matrix.platform }}" == "iOS" ] || [ "${{ matrix.platform }}" == "macOS" ]; then
-            cp "$BUILD_DIR"/*.dylib "$OUTPUT_DIR/libwebrtc-apm.dylib"
+            cp "$BUILD_DIR/libwebrtc-audio-processing-*.dylib" "$OUTPUT_DIR/libwebrtc-apm.dylib"
           else
             cp "$BUILD_DIR"/*.so "$OUTPUT_DIR/libwebrtc-apm.so"
           fi
