@@ -22,7 +22,6 @@
 #include <string.h>
 
 #include <array>
-#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -1086,21 +1085,8 @@ RTC_EXPORT size_t webrtc_apm_get_frame_size(int sample_rate_hz);
 
 
 static auto is_beta_available() -> bool {
-    // Get current time in seconds since epoch
-    const auto now = std::chrono::system_clock::now();
-    const std::time_t now_t = std::chrono::system_clock::to_time_t(now);
 
-    // Define the cutoff date as a tm struct
-    std::tm cutoff_tm{};
-    cutoff_tm.tm_year = 2025 - 1900; // Years since 1900
-    cutoff_tm.tm_mon = 5 - 1;       // Months since January (0-indexed)
-    cutoff_tm.tm_mday = 15;
-
-    // Convert cutoff date to time_t
-    const std::time_t cutoff_t = std::mktime(&cutoff_tm);
-
-    // Compare the time_t values
-    return now_t < cutoff_t;
+    return true;
 }
 
 

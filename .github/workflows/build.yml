@@ -10,20 +10,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Windows builds (now using MinGW)
-          - os: windows-latest
-            rid: win-x64
-            platform: Windows
-            arch: x64
-            toolchain: mingw
-            cross_file: "windows-x64.crossfile"
+          # iOS builds
+          - os: macos-latest
+            rid: ios-arm64
+            platform: iOS
+            arch: arm64
+            toolchain: clang
+            cross_file: "ios.crossfile"
 
-          - os: windows-latest
-            rid: win-x86
-            platform: Windows
-            arch: x86
-            toolchain: mingw
-            cross_file: "windows-x86.crossfile"
 
     name: Build for ${{ matrix.platform }} - ${{ matrix.arch }}
 

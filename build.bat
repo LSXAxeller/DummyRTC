@@ -5,7 +5,7 @@ REM --- Configuration ---
 set SOURCE_DIR=.
 set BUILD_TYPE=release
 set STATIC_LINK_ARGS=-static
-set ARCHITECTURES=arm64 x64 x86
+set ARCHITECTURES=x64 x86 arm64
 set BUILD_DIR_PREFIX=build/build_static_
 set OUTPUT_LIB_NAME=webrtc_audio_processing
 REM --- End Configuration ---
