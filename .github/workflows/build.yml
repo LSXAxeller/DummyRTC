@@ -108,6 +108,9 @@ jobs:
         run: |
           echo "The NDK Root is: $NDK_ROOT"
           echo "The Toolchain Root is: $TOOLCHAIN_ROOT"
+          # List contents of the build directory before copying
+          echo "Listing contents of Toolchain: $TOOLCHAIN_ROOT"
+          ls -l "/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/"
 
 
       - name: Install Xcode Command Line Tools (iOS)
