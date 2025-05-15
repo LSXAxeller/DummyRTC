@@ -10,6 +10,42 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Windows builds
+          - os: windows-latest
+            rid: win-x64
+            platform: Windows
+            arch: x64
+            toolchain: mingw
+            cross_file: "windows-x64.crossfile"
+
+          - os: windows-latest
+            rid: win-x86
+            platform: Windows
+            arch: x86
+            toolchain: mingw
+            cross_file: "windows-x86.crossfile"
+
+          # Linux builds
+          - os: ubuntu-latest
+            rid: linux-x64
+            platform: Linux
+            arch: x86_64
+            toolchain: gcc
+            cross_file: ""
+
+          - os: ubuntu-latest
+            rid: linux-arm
+            platform: Linux
+            arch: armv7l
+            toolchain: gcc
+            cross_file: "linux-arm.crossfile"
+
+          - os: ubuntu-latest
+            rid: linux-arm64
+            platform: Linux
+            arch: aarch64
+            toolchain: gcc
+            cross_file: "linux-arm64.crossfile"
 
           # macOS builds
           - os: macos-latest
