@@ -100,6 +100,12 @@ jobs:
           echo "API_LEVEL=21" >> $GITHUB_ENV
           echo "NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
           echo "TOOLCHAIN_ROOT=${NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64" >> $GITHUB_ENV
+
+      # Print the NDK Root
+      - name: Print NDK Root
+        if: matrix.platform == 'Android'
+        shell: bash
+        run: |
           echo "The NDK Root is: $NDK_ROOT"
           echo "The Toolchain Root is: $TOOLCHAIN_ROOT"
 
