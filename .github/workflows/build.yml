@@ -63,7 +63,7 @@ jobs:
             cross_file: ""
 
           # iOS builds
-          - os: macos-15
+          - os: macos-latest
             rid: ios-arm64
             platform: iOS
             arch: arm64
@@ -189,7 +189,7 @@ jobs:
         shell: bash
         run: |
           BUILD_DIR="build_${{ matrix.rid }}"
-          EXTRA_ARGS=""
+          EXTRA_ARGS="--buildtype=release"
           
           if [ -n "${{ matrix.cross_file }}" ]; then
             meson setup $BUILD_DIR --cross-file crossfiles/${{ matrix.cross_file }} $EXTRA_ARGS
@@ -226,6 +226,56 @@ jobs:
           
           echo "Copied artifact to:"
           ls -l "$OUTPUT_DIR"
+
+      # Dependency analysis
+      - name: Analyze Dependencies (Windows)
+        if: matrix.platform == 'Windows'
+        shell: bash
+        run: |
+          echo "Dependencies for Windows (MinGW):"
+          objdump -p "runtimes/${{ matrix.rid }}/native/webrtc-apm.dll" | grep "DLL Name:"
+          echo "Imported symbols:"
+          nm -g "runtimes/${{ matrix.rid }}/native/webrtc-apm.dll" | grep " T "
+
+      - name: Analyze Dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest' && matrix.platform == 'Linux'
+        shell: bash
+        run: |
+          LIB_PATH="runtimes/${{ matrix.rid }}/native/libwebrtc-apm.so"
+          echo "Dependencies for Linux:"
+          ldd "$LIB_PATH"
+          echo "Symbols:"
+          nm -g "$LIB_PATH" | grep " T "
+
+      - name: Analyze Dependencies (Android)
+        if: matrix.platform == 'Android'
+        shell: bash
+        run: |
+          LIB_PATH="runtimes/${{ matrix.rid }}/native/libwebrtc-apm.so"
+          echo "Dependencies for Android:"
+          readelf -d "$LIB_PATH"
+          echo "Symbols:"
+          nm -g "$LIB_PATH" | grep " T "
+
+      - name: Analyze Dependencies (macOS)
+        if: matrix.os == 'macos-latest' && matrix.platform == 'macOS'
+        shell: bash
+        run: |
+          LIB_PATH="runtimes/${{ matrix.rid }}/native/libwebrtc-apm.dylib"
+          echo "Dependencies for macOS:"
+          otool -L "$LIB_PATH"
+          echo "Symbols:"
+          nm -g "$LIB_PATH" | grep " T "
+
+      - name: Analyze Dependencies (iOS)
+        if: matrix.platform == 'iOS'
+        shell: bash
+        run: |
+          LIB_PATH="runtimes/${{ matrix.rid }}/native/libwebrtc-apm.dylib"
+          echo "Dependencies for iOS:"
+          otool -L "$LIB_PATH"
+          echo "Symbols:"
+          nm -g "$LIB_PATH" | grep " T "
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
